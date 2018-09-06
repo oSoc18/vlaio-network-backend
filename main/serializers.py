@@ -1,6 +1,6 @@
 from rest_framework.serializers import ModelSerializer
 
-from .models import Company, Interaction
+from .models import Company, Interaction,Partner
 
 
 class CompanySerializer(ModelSerializer):
@@ -23,4 +23,14 @@ class InteractionSerializer(ModelSerializer):
             'date',
             'company_id',
             'partner_id'
+        )
+
+
+class PartnerSerializer(ModelSerializer):
+
+    class Meta:
+        model = Partner
+        fields = (
+            'id',
+            'name'
         )

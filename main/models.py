@@ -5,12 +5,12 @@ class Company(models.Model):
     vat = models.CharField(primary_key=True, max_length=30)
     name = models.CharField(max_length=120)
     employees = models.IntegerField()
-    profit = models.IntegerField(null=True)
+    profit = models.BigIntegerField(null=True)
 
 
 class Partner(models.Model):
     id = models.CharField(primary_key=True, max_length=30)
-    name = models.CharField(max_length=30)
+    name = models.CharField(max_length=400)
 
 
 class Interaction(models.Model):

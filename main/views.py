@@ -1,6 +1,6 @@
 from django.shortcuts import render
-from .models import Company
-from .serializers import CompanySerializer
+from .models import Company, Interaction,Partner
+from .serializers import CompanySerializer, InteractionSerializer, PartnerSerializer
 from rest_framework.generics import ListAPIView
 
 
@@ -18,3 +18,12 @@ class Home(TemplateView):
 class CompanyListView(ListAPIView):
     serializer_class = CompanySerializer
     queryset = Company.objects.all()
+
+
+class InteractionListView(ListAPIView):
+    serializer_class = InteractionSerializer
+    queryset = Interaction.objects.all()
+
+class PartnerListView(ListAPIView):
+    serializer_class = PartnerSerializer
+    queryset = Partner.objects.all()
