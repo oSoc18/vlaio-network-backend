@@ -28,7 +28,7 @@ class InteractionListView(ListAPIView):
         partner_name = self.request.query_params.get('name', None)
 
         if partner_name is not None:
-            partner = Partner.objects.get(name=partner_name.upper())
+            partner = Partner.objects.get(name=partner_name)
             interactions = interactions.filter(partner_id=partner.id)
             # interactions = interactions.filter(partner__name=partner_name.upper())
         return interactions
