@@ -14,12 +14,12 @@ print("Begin mock insertion")
 
 PARTNERS = {
     # NAME: MAX_INTERACTIONS
-    '00 APPLE': 750,
-    '00 BANANA': 600,
-    '00 MANGO': 500,
-    '00 CAROT': 400,
-    "00 ORANGE": 300,
-    "00 CHERRY": 200
+    'VLAIO': 750,
+    'KULeuven': 600,
+    'Unizo': 500,
+    'NSZ': 400,
+    "Voka": 300,
+    "VUB": 200
 }
 MAX_COUNT = max(PARTNERS.values())
 
@@ -47,10 +47,13 @@ Company.objects.bulk_create([
     ) for i in range(COMPANIES_COUNT)
 ])
 
-Partner.objects.bulk_create([
-    Partner(id=name, name=name)
+partners = [
+    Partner(name=name)
     for name in PARTNERS
-])
+]
+
+for partner in partners : 
+    partner.save()
 
 for index, (part, count) in enumerate(PARTNERS.items()):
     interactions = {
@@ -63,7 +66,7 @@ for index, (part, count) in enumerate(PARTNERS.items()):
             type='ad',
             date=date.today(),
             company_id=vat,
-            partner_id=part
+            partner_id=partners[index].id
         ) for i, vat in enumerate(interactions)
     ])
 

@@ -9,7 +9,7 @@ class Company(models.Model):
 
 
 class Partner(models.Model):
-    id = models.CharField(primary_key=True, max_length=30)
+    #id = models.CharField(primary_key=True, max_length=30)
     name = models.CharField(max_length=400)
 
 
