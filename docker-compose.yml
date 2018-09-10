@@ -14,3 +14,5 @@ services:
       - "8000:8000"
     depends_on:
       - db
+    environment:
+      - DJANGO_SETTINGS_MODULE=vlaio_prototype.settings

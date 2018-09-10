@@ -1,9 +1,16 @@
-from main import models
 import random as rnd
-from main.models import Company, Partner, Interaction
 from datetime import date
 
+import django
+# before importing any model
+django.setup()
+
+from main.models import Company, Partner, Interaction
+
 COMPANIES_COUNT = 1000
+
+print("Begin mock insertion")
+
 
 PARTNERS = {
     # NAME: MAX_INTERACTIONS
@@ -59,3 +66,5 @@ for index, (part, count) in enumerate(PARTNERS.items()):
             partner_id=part
         ) for i, vat in enumerate(interactions)
     ])
+
+print("Finished insertion")
