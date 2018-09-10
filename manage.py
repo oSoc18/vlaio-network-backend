@@ -1,6 +1,9 @@
 #!/usr/bin/env python
 import os
 import sys
+import time
+
+time.sleep(10)
 
 if __name__ == '__main__':
     os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'vlaio_prototype.settings')
