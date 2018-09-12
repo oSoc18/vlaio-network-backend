@@ -5,7 +5,7 @@ import django
 # before importing any model
 django.setup()
 
-from main.models import Company, Partner, Interaction
+from main.models import Company, Partner, Interaction, Overlap
 
 COMPANIES_COUNT = 1000
 
@@ -69,5 +69,16 @@ for index, (part, count) in enumerate(PARTNERS.items()):
             partner_id=partners[index].id
         ) for i, vat in enumerate(interactions)
     ])
+
+
+def randomPartner():
+    return rnd.choice(partners).name
+
+Overlap.objects.bulk_create([
+    Overlap(
+        partners=randomPartner()+", "+randomPartner(),
+        amount=rnd.randint(0,100)
+    ) for i in range(30)
+])
 
 print("Finished insertion")
