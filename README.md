@@ -1,5 +1,5 @@
 # VLAIO NETWORK
-The backend for the VLAIO visualistion project. The project uses [Django](https://www.djangoproject.com) and [PostgreSQL](https://www.postgresql.org).
+The backend for the VLAIO visualisation project. The project uses [Django](https://www.djangoproject.com) and [PostgreSQL](https://www.postgresql.org).
 
 ## Starting the project
 Before starting the project, make sure [Docker](https://www.docker.com) and [docker-compose](https://docs.docker.com/compose/) are installed.
