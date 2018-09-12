@@ -84,7 +84,7 @@ for partner in partners:
         amount+= 1  
 
     par = []
-    par.append(partner)
+    par.append(partner.name)
     
     overlap = Overlap(partners=par, amount=amount)
     overlap.save()
