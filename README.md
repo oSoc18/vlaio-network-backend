@@ -4,10 +4,17 @@ The backend for the VLAIO visualistion project. The project uses [Django](https:
 ## Starting the project
 Before starting the project, make sure [Docker](https://www.docker.com) and [docker-compose](https://docs.docker.com/compose/) are installed.
 
-For starting the project on windows/mac/linux if python is installed, run the following command:
+For starting the project on **windows/mac/linux** if python is installed, run the following command:
 
 ``` python startup.py ```
 
+Windows only:
+
+``` start.bat ```
+
+Mac only:
+
+```sh start.sh ```
 
 This script will:
 - Stop other running docker containers from the same image
