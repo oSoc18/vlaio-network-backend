@@ -1,11 +1,12 @@
 import random as rnd
 from datetime import date
+from itertools import combinations
 
 import django
 # before importing any model
 django.setup()
 
-from main.models import Company, Partner, Interaction
+from main.models import Company, Partner, Interaction, Overlap
 
 COMPANIES_COUNT = 1000
 
@@ -69,5 +70,44 @@ for index, (part, count) in enumerate(PARTNERS.items()):
             partner_id=partners[index].id
         ) for i, vat in enumerate(interactions)
     ])
+
+
+partnerNames = []
+for partner in partners:
+    partnerNames.append(partner.name)
+
+
+for partner in partners:
+    overlapSingle = Interaction.objects.raw(f"select interaction.company_id as id, count(company_id) as amount from main_interaction interaction JOIN main_partner partner on interaction.partner_id = partner.id WHERE partner.name = '{partner.name}' GROUP BY interaction.company_id")
+    amount = 0
+    for singleI in overlapSingle:
+        amount+= 1  
+
+    par = []
+    par.append(partner.name)
+    
+    overlap = Overlap(partners=par, amount=amount)
+    overlap.save()
+
+for i, partner in enumerate(partnerNames):
+
+
+    perm = combinations(partnerNames,i+2)
+    for per in perm:
+        query=""
+        for p in per:
+            query+= f"partner.name = '{p}' OR "
+        query = query[:-3]
+
+        overlapedInteractions = Interaction.objects.raw("select interaction.company_id as id, count(company_id) as amount from main_interaction interaction JOIN main_partner partner on interaction.partner_id = partner.id WHERE "+query+"GROUP BY interaction.company_id")
+        amount = 0
+        for interaction in overlapedInteractions: 
+            if(interaction.amount == 2):
+                amount+= 1
+    
+
+
+        overlap = Overlap(partners=per, amount=amount)
+        overlap.save()
 
 print("Finished insertion")
