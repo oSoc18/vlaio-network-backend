@@ -1,5 +1,6 @@
 import random as rnd
 from datetime import date
+from itertools import permutations
 
 import django
 # before importing any model
@@ -71,14 +72,15 @@ for index, (part, count) in enumerate(PARTNERS.items()):
     ])
 
 
-def randomPartner():
-    return rnd.choice(partners).name
+partnerNames = []
+for partner in partners:
+    partnerNames.append(partner.name)
 
-Overlap.objects.bulk_create([
-    Overlap(
-        partners=randomPartner()+", "+randomPartner(),
-        amount=rnd.randint(0,100)
-    ) for i in range(30)
-])
+
+for i, partner in enumerate(partnerNames):
+    perm = permutations(partnerNames,i+1)
+    for per in perm:
+        overlap = Overlap(partners=per, amount=rnd.randint(0,100))
+        overlap.save()
 
 print("Finished insertion")
