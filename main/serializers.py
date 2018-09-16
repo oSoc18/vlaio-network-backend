@@ -1,6 +1,6 @@
 from rest_framework.serializers import ModelSerializer
 
-from .models import Company, Interaction,Partner,Overlap, InteractionsLevles
+from .models import Company, Interaction,Partner,Overlap, InteractionsLevels
 
 
 class CompanySerializer(ModelSerializer):
@@ -43,10 +43,11 @@ class PartnerSerializer(ModelSerializer):
         )
 ##################################################################################################
 
-class InteractionsLevlesSerializer(ModelSerializer):
+
+class InteractionsLevelsSerializer(ModelSerializer):
 
     class Meta:
-        model = InteractionsLevles
+        model = InteractionsLevels
         fields = (
             'name',
             'children'

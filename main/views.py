@@ -1,5 +1,5 @@
 from django.shortcuts import render
-from .models import Company, Interaction,Partner, Overlap
+from .models import Company, Interaction,Partner, Overlap, InteractionsLevels
 from .serializers import CompanySerializer, InteractionSerializer, PartnerSerializer, OverlapSerializer, InteractionsLevelsSerializer
 from rest_framework.generics import ListAPIView
 
@@ -40,11 +40,14 @@ class PartnerListView(ListAPIView):
 
 ###############################################################################
 
+
 class InteractionsLevelsListView(ListAPIView):
     serializer_class = InteractionsLevelsSerializer
     queryset = InteractionsLevels.objects.all()
 
+
 ###############################################################################
+
 
 class OverlapListView(ListAPIView):
     serializer_class = OverlapSerializer

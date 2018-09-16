@@ -37,6 +37,14 @@ class Migration(migrations.Migration):
                 ('name', models.CharField(max_length=400)),
             ],
         ),
+        migrations.CreateModel(
+            name='InteractionsLevels',
+            fields=[
+                ('name', models.CharField(max_length=400)),
+                ('children',
+                 django.contrib.postgres.fields.ArrayField(base_field=models.CharField(max_length=400), size=None)),
+            ],
+        ),
         migrations.AddField(
             model_name='interaction',
             name='partner',
