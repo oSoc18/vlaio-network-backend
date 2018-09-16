@@ -6,7 +6,7 @@ import django
 # before importing any model
 django.setup()
 
-from main.models import Company, Partner, Interaction, Overlap
+from main.models import Company, Partner, Interaction, Overlap, InteractionsLevles
 
 COMPANIES_COUNT = 1000
 
@@ -109,5 +109,17 @@ for i, partner in enumerate(partnerNames):
 
         overlap = Overlap(partners=per, amount=amount)
         overlap.save()
+################# Traying to put the name in the dataBase ##################################################
+
+intLevels = [
+    Partner(name=name)
+    for name in PARTNERS
+]
+
+for interactionsLevels in intLevels:
+    interactionsLevels.save()
+
+############################################################################################################
+
 
 print("Finished insertion")

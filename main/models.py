@@ -11,6 +11,11 @@ class Company(models.Model):
 class Partner(models.Model):
     #id = models.CharField(primary_key=True, max_length=30)
     name = models.CharField(max_length=400)
+    children = ArrayField(models.CharField(max_length=400))
+
+class InteractionsLevles(models.Model):
+    #id = models.CharField(primary_key=True, max_length=30)
+    name = models.CharField(max_length=400)
 
 class Overlap(models.Model):
     #partners = models.CharField(max_length=400)
