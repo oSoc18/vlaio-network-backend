@@ -3,6 +3,7 @@ from datetime import date
 from itertools import combinations
 
 import django
+
 # before importing any model
 django.setup()
 
@@ -11,7 +12,6 @@ from main.models import Company, Partner, Interaction, Overlap, InteractionsLeve
 COMPANIES_COUNT = 1000
 
 print("Begin mock insertion")
-
 
 PARTNERS = {
     # NAME: MAX_INTERACTIONS
@@ -53,7 +53,7 @@ partners = [
     for name in PARTNERS
 ]
 
-for partner in partners : 
+for partner in partners:
     partner.save()
 
 for index, (part, count) in enumerate(PARTNERS.items()):
@@ -63,7 +63,7 @@ for index, (part, count) in enumerate(PARTNERS.items()):
     }
     Interaction.objects.bulk_create([
         Interaction(
-            id=str(index*MAX_COUNT+i)+vat,
+            id=str(index * MAX_COUNT + i) + vat,
             type='ad',
             date=date.today(),
             company_id=vat,
@@ -71,51 +71,63 @@ for index, (part, count) in enumerate(PARTNERS.items()):
         ) for i, vat in enumerate(interactions)
     ])
 
-
 partnerNames = []
 for partner in partners:
     partnerNames.append(partner.name)
 
-
 for partner in partners:
-    overlapSingle = Interaction.objects.raw(f"select interaction.company_id as id, count(company_id) as amount from main_interaction interaction JOIN main_partner partner on interaction.partner_id = partner.id WHERE partner.name = '{partner.name}' GROUP BY interaction.company_id")
+    overlapSingle = Interaction.objects.raw(
+        f"select interaction.company_id as id, count(company_id) as amount from main_interaction interaction JOIN main_partner partner on interaction.partner_id = partner.id WHERE partner.name = '{partner.name}' GROUP BY interaction.company_id")
     amount = 0
     for singleI in overlapSingle:
-        amount+= 1  
+        amount += 1
 
     par = []
     par.append(partner.name)
-    
+
     overlap = Overlap(partners=par, amount=amount)
     overlap.save()
 
 for i, partner in enumerate(partnerNames):
 
-
-    perm = combinations(partnerNames,i+2)
+    perm = combinations(partnerNames, i + 2)
     for per in perm:
-        query=""
+        query = ""
         for p in per:
-            query+= f"partner.name = '{p}' OR "
+            query += f"partner.name = '{p}' OR "
         query = query[:-3]
 
-        overlapedInteractions = Interaction.objects.raw("select interaction.company_id as id, count(company_id) as amount from main_interaction interaction JOIN main_partner partner on interaction.partner_id = partner.id WHERE "+query+"GROUP BY interaction.company_id")
+        overlapedInteractions = Interaction.objects.raw(
+            "select interaction.company_id as id, count(company_id) as amount from main_interaction interaction JOIN main_partner partner on interaction.partner_id = partner.id WHERE " + query + "GROUP BY interaction.company_id")
         amount = 0
-        for interaction in overlapedInteractions: 
-            if(interaction.amount == 2):
-                amount+= 1
-    
-
+        for interaction in overlapedInteractions:
+            if (interaction.amount == 2):
+                amount += 1
 
         overlap = Overlap(partners=per, amount=amount)
         overlap.save()
 ################# Traying to put the name in the dataBase ##################################################
 
-intLevels = [
-    InteractionsLevels(name=name)
+intLevels2 = [
+    InteractionsLevels(name=name, children=[name])
     for name in PARTNERS
 ]
 
+###################### This is a safe #######################################################################
+
+#intLevels = [
+    # InteractionsLevels(name=Interaction.objects.values('company_id', 'compagnies__vat'), children=['Luc'])
+    #Interaction.objects.values('company_id', 'companies__vat')
+#select all company_id from table interaction
+#intLevels = Interaction.objects.values_list('company_id')
+company_names = Company.objects.values_list('name')
+print(company_names)
+
+
+intLevels = [
+    InteractionsLevels(name=name, children=[name])
+    for name in company_names
+]
 
 for interactionsLevels in intLevels:
     interactionsLevels.save()

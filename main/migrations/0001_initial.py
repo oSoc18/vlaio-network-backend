@@ -40,6 +40,7 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='InteractionsLevels',
             fields=[
+                ('id', models.CharField(max_length=30, primary_key=True, serialize=False)),
                 ('name', models.CharField(max_length=400)),
                 ('children',
                  django.contrib.postgres.fields.ArrayField(base_field=models.CharField(max_length=400), size=None)),
