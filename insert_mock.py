@@ -115,19 +115,41 @@ intLevels2 = [
 
 ###################### This is a safe #######################################################################
 
-#intLevels = [
-    # InteractionsLevels(name=Interaction.objects.values('company_id', 'compagnies__vat'), children=['Luc'])
-    #Interaction.objects.values('company_id', 'companies__vat')
-#select all company_id from table interaction
-#intLevels = Interaction.objects.values_list('company_id')
-company_names = Company.objects.values_list('name')
+# intLevels = [
+# InteractionsLevels(name=Interaction.objects.values('company_id', 'compagnies__vat'), children=['Luc'])
+# Interaction.objects.values('company_id', 'companies__vat')
+# select all company_id from table interaction
+# intLevels = Interaction.objects.values_list('company_id')
+
+"""
+company_names = list(Company.objects.values_list('name'))
 print(company_names)
 
+for i in range(len(company_names)):
+    company_names[i] = company_names[i].replace("(", "")
+    company_names[i] = company_names[i].replace(")", "")
+    company_names[i] = company_names[i].replace("'", "")
+    company_names[i] = company_names[i].replace(",", "")
+"""
 
-intLevels = [
-    InteractionsLevels(name=name, children=[name])
-    for name in company_names
+companies = Company.objects.all()
+interactionsTuple = Interaction.objects.all()
+
+intLevels3 = [
+    InteractionsLevels(name=n.name, children=["p"])
+    for n in companies
 ]
+l=["h","j"]
+intLevels = []
+for n in companies:
+    child = []
+    for m in interactionsTuple:
+        if m.company_id == n.vat:
+            child.append(m.company_id)
+            print(child)
+    intLevels.append(InteractionsLevels(name=n.name, children=[c for c in child]))
+
+
 
 for interactionsLevels in intLevels:
     interactionsLevels.save()
