@@ -139,7 +139,7 @@ intLevels3 = [
     InteractionsLevels(name=n.name, children=["p"])
     for n in companies
 ]
-l=["h","j"]
+l=["h", "j"]
 intLevels = []
 for n in companies:
     child = []
