@@ -145,7 +145,7 @@ for n in companies:
     child = []
     for m in interactionsTuple:
         if m.company_id == n.vat:
-            child.append(m.company_id)
+            child.append(m.partner_id)
             print(child)
     intLevels.append(InteractionsLevels(name=n.name, children=[c for c in child]))
 
