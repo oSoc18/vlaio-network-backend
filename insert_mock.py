@@ -134,6 +134,7 @@ for i in range(len(company_names)):
 
 companies = Company.objects.all()
 interactionsTuple = Interaction.objects.all()
+partnersTuple = Partner.objects.all()
 
 intLevels3 = [
     InteractionsLevels(name=n.name, children=["p"])
@@ -145,8 +146,10 @@ for n in companies:
     child = []
     for m in interactionsTuple:
         if m.company_id == n.vat:
-            child.append(m.partner_id)
-            print(child)
+            for y in partnersTuple:
+                if m.partner_id == y.id:
+                    child.append(y.name)
+
     intLevels.append(InteractionsLevels(name=n.name, children=[c for c in child]))
 
 
