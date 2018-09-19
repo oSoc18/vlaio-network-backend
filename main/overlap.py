@@ -48,7 +48,7 @@ def calculateOverlap():
             overlap = Overlap(partners=per, amount=amount)
             overlaps.append(overlap)
 
-    return Overlap.objects.all()
+    return overlaps
 
 def calculateOverlap_filterType(type):
     overlaps = []
@@ -93,4 +93,4 @@ def calculateOverlap_filterType(type):
             overlap = Overlap(partners=per, amount=amount)
             overlaps.append(overlap)
 
-    return Overlap.objects.all()
+    return overlaps
