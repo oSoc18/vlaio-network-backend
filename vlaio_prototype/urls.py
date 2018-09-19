@@ -22,5 +22,5 @@ urlpatterns = [
     path('auth/login', views.obtain_auth_token),
     path('auth/', include(('authenticate.urls', 'authenticate'), namespace='auth')),
     path('admin/', admin.site.urls),
-    path('home/', include(('main.urls', 'main')))
+    path('api/', include(('main.urls', 'main')))
 ]
