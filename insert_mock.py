@@ -22,6 +22,13 @@ PARTNERS = {
     "Voka": 300,
     "VUB": 200
 }
+
+INTERACTION_TYPES = [
+    "begeleiding",
+    "bubsidie",
+    "financiering"
+]
+
 MAX_COUNT = max(PARTNERS.values())
 
 GENERATED_VATS = []
@@ -37,7 +44,6 @@ def random_vat():
 def random_company_name():
     alphabet = list(map(chr, range(ord('A'), ord('Z') + 1)))
     return "".join(rnd.choice(alphabet) for i in range(rnd.randint(4, 10)))
-
 
 Company.objects.bulk_create([
     Company(
@@ -64,7 +70,7 @@ for index, (part, count) in enumerate(PARTNERS.items()):
     Interaction.objects.bulk_create([
         Interaction(
             id=str(index*MAX_COUNT+i)+vat,
-            type='ad',
+            type=rnd.choice(INTERACTION_TYPES),
             date=f"2016-{rnd.randint(1,12)}-{rnd.randint(1,27)}",
             company_id=vat,
             partner_id=partners[index].id

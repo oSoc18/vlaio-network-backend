@@ -44,6 +44,10 @@ class PartnerListView(ListAPIView):
     serializer_class = PartnerSerializer
     queryset = Partner.objects.all()
 
+class InteractionTypeListView(APIView):
+    def get(self, request, *args, **kwargs):
+        return Response(Interaction.objects.values_list('type', flat=True).distinct())
+
 
 class OverlapListView(ListAPIView):
     serializer_class = OverlapSerializer

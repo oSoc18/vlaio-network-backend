@@ -42,6 +42,7 @@ class PartnerSerializer(ModelSerializer):
             'name'
         )
 
+
 class DataFileSerializer(ModelSerializer):
   class Meta():
     model = DataFile

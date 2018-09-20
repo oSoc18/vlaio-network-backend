@@ -18,17 +18,9 @@ class Overlap(models.Model):
     amount = models.IntegerField()
 
 class Interaction(models.Model):
-    ADVICE = 'ad'
-    FINANCIAL_AID = 'fa'
-
-    INTERACTION_TYPE = (
-        (ADVICE, 'advice'),
-        (FINANCIAL_AID, 'financial aid')
-    )
-
     id = models.CharField(primary_key=True, max_length=30)
     date = models.DateField()
-    type = models.CharField(max_length=2, choices=INTERACTION_TYPE)
+    type = models.CharField(max_length=200)
     company = models.ForeignKey(Company, on_delete=models.CASCADE)
     partner = models.ForeignKey(Partner, on_delete=models.CASCADE)
 
