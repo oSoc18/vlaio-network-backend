@@ -8,7 +8,7 @@ from .models import Company, Interaction, Partner, Overlap, DataFile
 from .serializers import CompanySerializer, InteractionSerializer, PartnerSerializer, OverlapSerializer, DataFileSerializer
 from excel_parse import COMPANY_CONFIG, INTERACTION_CONFIG
 from django.conf import settings
-from .overlap import calculateOverlap, calculateOverlap_filterType
+from .overlap import calculateOverlap, calculateOverlap_filterType,calculateOverlap_timeframe
 
 """
 class Home(TemplateView):
@@ -50,7 +50,7 @@ class InteractionTypeListView(APIView):
 
 
 class OverlapListView(ListAPIView):
-    serializer_class = OverlapSerializer
+    serializer_class = OverlapSerializer 
 
     def get_queryset(self):
         return calculateOverlap()
@@ -61,8 +61,12 @@ class OverlapTimeframeListView(ListAPIView):
 
     def get_queryset(self):
         interaction_type = self.request.query_params.get('type', None)
+        timeframe = self.request.query_params.get('timeframe', None)
+
         if interaction_type is not None:
             return calculateOverlap_filterType(interaction_type)
+        elif timeframe is not None:
+            return calculateOverlap_timeframe(timeframe)
         
 
 
