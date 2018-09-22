@@ -1,79 +1,87 @@
 from datetime import date
-
-from .vat_normilze import normalize
-
+import pandas as pd
 import os
+
 os.environ['DJANGO_SETTINGS_MODULE'] = 'vlaio_prototype.settings'
 import django
-
 # before importing any model
 django.setup()
-import pandas as pd
+
 from main.models import Company, Interaction, Partner
+
+from .vat_normilze import normalize, is_vat
+from . import checkers
 
 
 class Config:
-    def __init__(self, xl_to_sql, model_class, xl_types=None, map_df_func=None):
+    def __init__(self, xl_to_sql, model_class, xl_types=None, map_df_func=None, checkers=None):
         self.xl_to_sql = xl_to_sql
         self.xl_types = xl_types
         self.xl_cols = set(xl_to_sql.keys())
         self.model_class = model_class
         self.map_df_func=map_df_func
+        self.checkers = checkers or []
 
-    def insert_models(self):
-        dicts = self.df.to_dict('records')
+    def insert_models(self, df):
+        if self.map_df_func is not None:
+            df = self.map_df_func(df)
+        dicts = df.to_dict('records')
         self.model_class.objects.bulk_create(
             [
                 self.model_class(**{self.xl_to_sql[k]: d[k] for k in self.xl_cols})
                 for d in dicts
             ]
         )
+    
+    def check(self, df):
+        return [f(df) for f in self.checkers]
 
     def insert_from_excel(self, file_path):
-        self.get_data_from_excel_file(file_path)
-        self.insert_models()
+        df = self.get_data_from_excel_file(file_path)
+        self.insert_models(df)
 
     def get_data_from_excel_file(self, file_path):
-        self.df = pd.read_excel(
+        df = pd.read_excel(
             file_path,
             encoding='sys.getfilesystemencoding()',
             dtype=self.xl_types
         )
-        print(self.df.columns)
-        present = set(self.df.columns)
+        print(df.columns)
+        present = set(df.columns)
         missing = self.xl_cols - present
         if missing:
             raise ValueError("Missing columns: " + ",".join(missing))
         additional = present - self.xl_cols
         for col in additional:
-            del self.df[col]
+            del df[col]
 
-        if self.map_df_func is not None:
-            self.df = self.map_df_func(self.df)
+        return df
+
+
 
 
 def map_company_vat(df):
-    df[VAT_COLUMN] = df[VAT_COLUMN].apply(normalize)
+    df["VAT"] = df["VAT"].apply(normalize)
     return df
 
 
-VAT_COLUMN = "Ondernemingsnummer"
 COMPANY_CONFIG = Config(
     xl_to_sql={
         # In file name: db column name
         "Naam": "name",
-        VAT_COLUMN: "vat",
-        "Gemiddeld aantal werknemers 2016": "employees",
-        "Winst (Verlies) van het boekjaar na belasting (+/-) EUR 2016": "profit"
+        "VAT": "vat",
+        "werknemers": "employees",
+        "winst": "profit"
     },
     xl_types={
         "Naam": str,
-        "Ondernemingsnummer": str,
-        "Gemiddeld aantal werknemers 2016": int,
-        "Winst (Verlies) van het boekjaar na belasting (+/-) EUR 2016": int
+        "VAT": str,
+        "werknemers": int,
+        "winst": int
     },
     model_class=Company,
-    map_df_func=map_company_vat
+    map_df_func=map_company_vat,
+    checkers=[checkers.check_tva, checkers.check_empty_col("Naam")]
 )
 
 
@@ -82,20 +90,18 @@ def map_df_interactions(df: pd.DataFrame):
         name: Partner.objects.get_or_create(name=name)[0]
         for name in set(df['Source'])
     }
-    df[SOURCES] = df[SOURCES].apply(lambda x: sources[x].id)
+    df["Source"] = df["Source"].apply(lambda x: sources[x].id)
     # TODO change the date
     df['date'] = date.today()
     df["VAT"] = df["VAT"].apply(normalize)
-    df = df[df.VAT.notnull()]
     return df
 
 
-SOURCES = "Source"
+
 INTERACTION_CONFIG = Config(
     xl_to_sql={
-        "Trajectnummer": "id",
         "VAT": "company_id",
-        SOURCES: 'partner_id',
+        "Source": 'partner_id',
         "Type": "type",
         "Date": "date"
     },
@@ -103,9 +109,14 @@ INTERACTION_CONFIG = Config(
         "Source": str,
         "Type": str,
         "VAT": str,
-        "date": date,
-        "Trajectnummer": str
+        "date": date
     },
     model_class=Interaction,
-    map_df_func=map_df_interactions
+    map_df_func=map_df_interactions,
+    checkers=[
+        checkers.check_new_parnter,
+        checkers.check_new_types,
+        checkers.check_empty_col("Source"),
+        checkers.check_new_vat
+    ]
 )
