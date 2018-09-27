@@ -49,33 +49,54 @@ class PartnerListView(ListAPIView):
 
 @api_view()
 def view(request):
-    MAX_DEPTH = 4
+    # Parameters and filters: TODO: make this come from url params
+    MAX_DEPTH = 400
+    
+    # True if it is by interaction type
+    # False if it is by partner
+    PATH_INTERACTION_TYPE = False
+
     companies = Company.objects.all()
-    partners = Partner.objects.all()
-    partners_by_name = {
-        p.name: p for p in partners
-    }
-    partners_by_id = {
-        p.id: p for p in partners
-    }
+
+    if not PATH_INTERACTION_TYPE:
+        partners = Partner.objects.all()
+        partners_by_name = {
+            p.name: p for p in partners
+        }
+        partners_by_id = {
+            p.id: p for p in partners
+        }
+
+    def get_name(record):
+        if PATH_INTERACTION_TYPE:
+            return record.type
+        else:
+            return partners_by_id[record.partner_id].name
+    
+    def is_corresponding(record, name):
+        if PATH_INTERACTION_TYPE:
+            return record.type == name
+        else:
+            return record.partner_id == partners_by_name[name].id
+
 
     dicts = {
-        "name": "Partners",
+        "name": "Interactions types" if PATH_INTERACTION_TYPE else "Partners",
         "children": []
     }
     for n in companies:
         current = dicts
-        interactions = Interaction.objects.filter(company_id=n.vat).order_by('date')# [:MAX_DEPTH]
+        interactions = Interaction.objects.filter(company_id=n.vat).order_by('date')[:MAX_DEPTH]
         for i, m in enumerate(interactions):
             found_dict = None
             for _d in current["children"]:
                 name = _d["name"]
-                if m.partner_id == partners_by_name[name].id:
+                if is_corresponding(m, name):
                     found_dict = _d
                     break
             if not found_dict:
                 found_dict = {
-                    "name": partners_by_id[m.partner_id].name,
+                    "name": get_name(m),
                     "children": [],
                     "size": 0
                 }
