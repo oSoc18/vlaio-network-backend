@@ -1,11 +1,15 @@
 from django.shortcuts import render
-from .models import Company, Interaction,Partner, Overlap, InteractionsLevels
-from .serializers import CompanySerializer, InteractionSerializer, PartnerSerializer, OverlapSerializer, InteractionsLevelsSerializer
 from rest_framework.generics import ListAPIView
+from rest_framework.views import APIView
+from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
-
-
+from rest_framework import status
+from .models import Company, Interaction, Partner, Overlap, DataFile
+from .serializers import CompanySerializer, InteractionSerializer, PartnerSerializer, OverlapSerializer, DataFileSerializer
+from excel_parse import COMPANY_CONFIG, INTERACTION_CONFIG
+from django.conf import settings
+from .overlap import calculateOverlap, calculateOverlap_filterType,calculateOverlap_timeframe
 
 """
 class Home(TemplateView):
@@ -42,11 +46,6 @@ class PartnerListView(ListAPIView):
     queryset = Partner.objects.all()
 
 ###############################################################################
-
-
-class InteractionsLevelsListView(ListAPIView):
-    serializer_class = InteractionsLevelsSerializer
-    queryset = InteractionsLevels.objects.all()
 
 @api_view()
 def view(request):
@@ -90,6 +89,44 @@ def view(request):
 ###############################################################################
 
 
+
 class OverlapListView(ListAPIView):
+    serializer_class = OverlapSerializer 
+
+    def get_queryset(self):
+        return calculateOverlap()
+
+
+class OverlapTimeframeListView(ListAPIView):
     serializer_class = OverlapSerializer
-    queryset = Overlap.objects.all()
+
+    def get_queryset(self):
+        interaction_type = self.request.query_params.get('type', None)
+        timeframe = self.request.query_params.get('timeframe', None)
+
+        if interaction_type is not None:
+            return calculateOverlap_filterType(interaction_type)
+        elif timeframe is not None:
+            return calculateOverlap_timeframe(timeframe)
+        
+
+
+class DataFileView(APIView):
+
+    parser_classes = (MultiPartParser, FormParser)
+
+    def post(self, request, *args, **kwargs):
+
+        file_serializer = DataFileSerializer(data=request.data)
+        if file_serializer.is_valid():
+            file_serializer.save()
+            # COMPANY_CONFIG.insert_from_excel(settings.MEDIA_ROOT+"/belfirst1.xlsx")
+            INTERACTION_CONFIG.insert_from_excel(
+                settings.MEDIA_ROOT+"/VLAIO_advice.xlsx")
+            return Response(file_serializer.data, status=status.HTTP_201_CREATED)
+        else:
+            return Response(file_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class InteractionTypeListView(APIView):
+    def get(self, request, *args, **kwargs):
+        return Response(Interaction.objects.values_list('type', flat=True).distinct())

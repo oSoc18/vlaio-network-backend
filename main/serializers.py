@@ -1,6 +1,6 @@
 from rest_framework.serializers import ModelSerializer
 
-from .models import Company, Interaction,Partner,Overlap, InteractionsLevels
+from .models import Company, Interaction,Partner,Overlap, DataFile
 
 
 class CompanySerializer(ModelSerializer):
@@ -41,16 +41,9 @@ class PartnerSerializer(ModelSerializer):
             'id',
             'name'
         )
-##################################################################################################
 
 
-class InteractionsLevelsSerializer(ModelSerializer):
-
-    class Meta:
-        model = InteractionsLevels
-        fields = (
-            'name',
-            'children'
-        )
-
-##################################################################################################
+class DataFileSerializer(ModelSerializer):
+  class Meta():
+    model = DataFile
+    fields = ('file', 'timestamp')

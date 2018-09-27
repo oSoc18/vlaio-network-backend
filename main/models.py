@@ -11,10 +11,6 @@ class Company(models.Model):
 class Partner(models.Model):
     #id = models.CharField(primary_key=True, max_length=30)
     name = models.CharField(max_length=400)
-
-class InteractionsLevels(models.Model):
-    #id = models.CharField(primary_key=True, max_length=30)
-    name = models.CharField(max_length=400)
     children = ArrayField(models.CharField(max_length=400))
 
 class Overlap(models.Model):
@@ -23,16 +19,12 @@ class Overlap(models.Model):
     amount = models.IntegerField()
 
 class Interaction(models.Model):
-    ADVICE = 'ad'
-    FINANCIAL_AID = 'fa'
-
-    INTERACTION_TYPE = (
-        (ADVICE, 'advice'),
-        (FINANCIAL_AID, 'financial aid')
-    )
-
-    id = models.CharField(primary_key=True, max_length=30)
+    id = models.AutoField(primary_key=True)
     date = models.DateField()
-    type = models.CharField(max_length=2, choices=INTERACTION_TYPE)
+    type = models.CharField(max_length=200)
     company = models.ForeignKey(Company, on_delete=models.CASCADE)
     partner = models.ForeignKey(Partner, on_delete=models.CASCADE)
+
+class DataFile(models.Model):
+  file = models.FileField(blank=False, null=False)
+  timestamp = models.DateTimeField(auto_now_add=True)

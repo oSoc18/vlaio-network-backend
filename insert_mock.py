@@ -1,13 +1,12 @@
 import random as rnd
-from datetime import date
+from datetime import date, timedelta
 from itertools import combinations
 
 import django
-
 # before importing any model
 django.setup()
 
-from main.models import Company, Partner, Interaction, Overlap, InteractionsLevels
+from main.models import Company, Partner, Interaction, Overlap
 
 COMPANIES_COUNT = 1000
 
@@ -22,6 +21,13 @@ PARTNERS = {
     "Voka": 300,
     "VUB": 200
 }
+
+INTERACTION_TYPES = [
+    "begeleiding",
+    "bubsidie",
+    "financiering"
+]
+
 MAX_COUNT = max(PARTNERS.values())
 
 GENERATED_VATS = []
@@ -38,7 +44,6 @@ def random_company_name():
     alphabet = list(map(chr, range(ord('A'), ord('Z') + 1)))
     return "".join(rnd.choice(alphabet) for i in range(rnd.randint(4, 10)))
 
-
 Company.objects.bulk_create([
     Company(
         vat=random_vat(),
@@ -53,7 +58,7 @@ partners = [
     for name in PARTNERS
 ]
 
-for partner in partners:
+for partner in partners : 
     partner.save()
 
 for index, (part, count) in enumerate(PARTNERS.items()):
@@ -63,9 +68,8 @@ for index, (part, count) in enumerate(PARTNERS.items()):
     }
     Interaction.objects.bulk_create([
         Interaction(
-            id=str(index * MAX_COUNT + i) + vat,
-            type='ad',
-            date=date.today(),
+            type=rnd.choice(INTERACTION_TYPES),
+            date=f"2016-{rnd.randint(1,12)}-{rnd.randint(1,27)}",
             company_id=vat,
             partner_id=partners[index].id
         ) for i, vat in enumerate(interactions)
@@ -75,59 +79,38 @@ partnerNames = []
 for partner in partners:
     partnerNames.append(partner.name)
 
+
 for partner in partners:
-    overlapSingle = Interaction.objects.raw(
-        f"select interaction.company_id as id, count(company_id) as amount from main_interaction interaction JOIN main_partner partner on interaction.partner_id = partner.id WHERE partner.name = '{partner.name}' GROUP BY interaction.company_id")
+    overlapSingle = Interaction.objects.raw(f"select interaction.company_id as id, count(company_id) as amount from main_interaction interaction JOIN main_partner partner on interaction.partner_id = partner.id WHERE partner.name = '{partner.name}' GROUP BY interaction.company_id")
     amount = 0
     for singleI in overlapSingle:
-        amount += 1
+        amount+= 1  
 
     par = []
     par.append(partner.name)
-
+    
     overlap = Overlap(partners=par, amount=amount)
     overlap.save()
 
 for i, partner in enumerate(partnerNames):
 
-    perm = combinations(partnerNames, i + 2)
+
+    perm = combinations(partnerNames,i+2)
     for per in perm:
-        query = ""
+        query=""
         for p in per:
-            query += f"partner.name = '{p}' OR "
+            query+= f"partner.name = '{p}' OR "
         query = query[:-3]
 
-        overlapedInteractions = Interaction.objects.raw(
-            "select interaction.company_id as id, count(company_id) as amount from main_interaction interaction JOIN main_partner partner on interaction.partner_id = partner.id WHERE " + query + "GROUP BY interaction.company_id")
+        overlapedInteractions = Interaction.objects.raw("select interaction.company_id as id, count(company_id) as amount from main_interaction interaction JOIN main_partner partner on interaction.partner_id = partner.id WHERE "+query+"GROUP BY interaction.company_id")
         amount = 0
-        for interaction in overlapedInteractions:
-            if (interaction.amount == 2):
-                amount += 1
+        for interaction in overlapedInteractions: 
+            if(interaction.amount == 2):
+                amount+= 1
+    
+
 
         overlap = Overlap(partners=per, amount=amount)
         overlap.save()
-
-companies = Company.objects.all()
-interactionsTuple = Interaction.objects.all()
-partnersTuple = Partner.objects.all()
-
-intLevels = []
-for n in companies:
-    child = []
-    for m in interactionsTuple:
-        if m.company_id == n.vat:
-            for y in partnersTuple:
-                if m.partner_id == y.id:
-                    child.append(y.name)
-
-    intLevels.append(InteractionsLevels(name=n.name, children=[c for c in child]))
-
-
-
-for interactionsLevels in intLevels:
-    interactionsLevels.save()
-
-############################################################################################################
-
 
 print("Finished insertion")
