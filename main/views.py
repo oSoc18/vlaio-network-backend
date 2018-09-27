@@ -49,6 +49,7 @@ class PartnerListView(ListAPIView):
 
 @api_view()
 def view(request):
+    MAX_DEPTH = 4
     companies = Company.objects.all()
     partners = Partner.objects.all()
     partners_by_name = {
@@ -64,7 +65,7 @@ def view(request):
     }
     for n in companies:
         current = dicts
-        interactions = Interaction.objects.filter(company_id=n.vat).order_by('date')
+        interactions = Interaction.objects.filter(company_id=n.vat).order_by('date')# [:MAX_DEPTH]
         for i, m in enumerate(interactions):
             found_dict = None
             for _d in current["children"]:
@@ -75,15 +76,12 @@ def view(request):
             if not found_dict:
                 found_dict = {
                     "name": partners_by_id[m.partner_id].name,
-                    "children": []
+                    "children": [],
+                    "size": 0
                 }
-            current["children"].append(found_dict)
-            if i == len(interactions) - 1:
-                # last
-                current.setdefault("size", 0)
-                current["size"] += 1
-            else:
-                current = found_dict
+                current["children"].append(found_dict)
+            found_dict["size"] += 1
+            current = found_dict
 
     return Response(dicts)
 ###############################################################################
