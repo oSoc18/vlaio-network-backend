@@ -2,6 +2,9 @@ from django.shortcuts import render
 from .models import Company, Interaction,Partner, Overlap, InteractionsLevels
 from .serializers import CompanySerializer, InteractionSerializer, PartnerSerializer, OverlapSerializer, InteractionsLevelsSerializer
 from rest_framework.generics import ListAPIView
+from rest_framework.response import Response
+from rest_framework.decorators import api_view
+
 
 
 """
@@ -45,11 +48,48 @@ class InteractionsLevelsListView(ListAPIView):
     serializer_class = InteractionsLevelsSerializer
     queryset = InteractionsLevels.objects.all()
 
+@api_view()
+def view(request):
+    companies = Company.objects.all()
+    partners = Partner.objects.all()
+    partners_by_name = {
+        p.name: p for p in partners
+    }
+    partners_by_id = {
+        p.id: p for p in partners
+    }
 
+    dicts = {
+        "name": "Partners",
+        "children": []
+    }
+    for n in companies:
+        current = dicts
+        interactions = Interaction.objects.filter(company_id=n.vat).order_by('date')
+        for i, m in enumerate(interactions):
+            found_dict = None
+            for _d in current["children"]:
+                name = _d["name"]
+                if m.partner_id == partners_by_name[name].id:
+                    found_dict = _d
+                    break
+            if not found_dict:
+                found_dict = {
+                    "name": partners_by_id[m.partner_id].name,
+                    "children": []
+                }
+            current["children"].append(found_dict)
+            if i == len(interactions) - 1:
+                # last
+                current.setdefault("size", 0)
+                current["size"] += 1
+            else:
+                current = found_dict
+
+    return Response(dicts)
 ###############################################################################
 
 
 class OverlapListView(ListAPIView):
     serializer_class = OverlapSerializer
     queryset = Overlap.objects.all()
-    
