@@ -3,6 +3,7 @@ from rest_framework.generics import ListAPIView
 from rest_framework.views import APIView
 from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.response import Response
+from rest_framework.decorators import api_view
 from rest_framework import status
 from .models import Company, Interaction, Partner, Overlap, DataFile
 from .serializers import CompanySerializer, InteractionSerializer, PartnerSerializer, OverlapSerializer, DataFileSerializer
@@ -44,9 +45,68 @@ class PartnerListView(ListAPIView):
     serializer_class = PartnerSerializer
     queryset = Partner.objects.all()
 
-class InteractionTypeListView(APIView):
-    def get(self, request, *args, **kwargs):
-        return Response(Interaction.objects.values_list('type', flat=True).distinct())
+###############################################################################
+
+@api_view()
+def view(request):
+    # Parameters and filters: TODO: make this come from url params
+    MAX_DEPTH = 400
+    
+    # True if it is by interaction type
+    # False if it is by partner
+    PATH_INTERACTION_TYPE = False
+
+    companies = Company.objects.all()
+
+    if not PATH_INTERACTION_TYPE:
+        partners = Partner.objects.all()
+        partners_by_name = {
+            p.name: p for p in partners
+        }
+        partners_by_id = {
+            p.id: p for p in partners
+        }
+
+    def get_name(record):
+        if PATH_INTERACTION_TYPE:
+            return record.type
+        else:
+            return partners_by_id[record.partner_id].name
+    
+    def is_corresponding(record, name):
+        if PATH_INTERACTION_TYPE:
+            return record.type == name
+        else:
+            return record.partner_id == partners_by_name[name].id
+
+
+    dicts = {
+        "name": "Interactions types" if PATH_INTERACTION_TYPE else "Partners",
+        "children": []
+    }
+    for n in companies:
+        current = dicts
+        interactions = Interaction.objects.filter(company_id=n.vat).order_by('date')[:MAX_DEPTH]
+        for i, m in enumerate(interactions):
+            found_dict = None
+            for _d in current["children"]:
+                name = _d["name"]
+                if is_corresponding(m, name):
+                    found_dict = _d
+                    break
+            if not found_dict:
+                found_dict = {
+                    "name": get_name(m),
+                    "children": [],
+                    "size": 0
+                }
+                current["children"].append(found_dict)
+            found_dict["size"] += 1
+            current = found_dict
+
+    return Response(dicts)
+###############################################################################
+
 
 
 class OverlapListView(ListAPIView):
@@ -85,3 +145,7 @@ class DataFileView(APIView):
             return Response(file_serializer.data, status=status.HTTP_201_CREATED)
         else:
             return Response(file_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class InteractionTypeListView(APIView):
+    def get(self, request, *args, **kwargs):
+        return Response(Interaction.objects.values_list('type', flat=True).distinct())

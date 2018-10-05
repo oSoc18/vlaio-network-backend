@@ -28,6 +28,14 @@ def normalize(tva):
     return OUTPUT(**d)
 
 
+def is_vat(tva):
+    if tva is None:
+        return False
+    tva = tva.replace('.', '').replace(' ', '').replace('-', '')
+    m = REGEX.match(tva)
+    return m is not None
+
+
 if __name__ == '__main__':
     for t in EXAMPLES:
         print(normalize(t))

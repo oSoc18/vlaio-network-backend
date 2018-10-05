@@ -18,7 +18,7 @@ class Overlap(models.Model):
     amount = models.IntegerField()
 
 class Interaction(models.Model):
-    id = models.CharField(primary_key=True, max_length=30)
+    id = models.AutoField(primary_key=True)
     date = models.DateField()
     type = models.CharField(max_length=200)
     company = models.ForeignKey(Company, on_delete=models.CASCADE)

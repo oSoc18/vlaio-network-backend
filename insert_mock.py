@@ -1,5 +1,5 @@
 import random as rnd
-from datetime import date
+from datetime import date, timedelta
 from itertools import combinations
 
 import django
@@ -11,7 +11,6 @@ from main.models import Company, Partner, Interaction, Overlap
 COMPANIES_COUNT = 1000
 
 print("Begin mock insertion")
-
 
 PARTNERS = {
     # NAME: MAX_INTERACTIONS
@@ -69,14 +68,12 @@ for index, (part, count) in enumerate(PARTNERS.items()):
     }
     Interaction.objects.bulk_create([
         Interaction(
-            id=str(index*MAX_COUNT+i)+vat,
             type=rnd.choice(INTERACTION_TYPES),
             date=f"2016-{rnd.randint(1,12)}-{rnd.randint(1,27)}",
             company_id=vat,
             partner_id=partners[index].id
         ) for i, vat in enumerate(interactions)
     ])
-
 
 partnerNames = []
 for partner in partners:
