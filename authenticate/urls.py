@@ -1,8 +1,9 @@
 from django.urls import path
-from .views import RegisterUserView, Profile
+from .views import Profile
+from rest_framework.authtoken import views
 
 
 urlpatterns = [
-    path('/register', RegisterUserView.as_view(), name='register'),
-    path('/my-profile', Profile.as_view(), name='my-profile')
+    path('my-profile/', Profile.as_view(), name='my-profile'),
+    path('login/', views.obtain_auth_token),
 ]
