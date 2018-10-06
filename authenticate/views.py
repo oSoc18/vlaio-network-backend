@@ -57,11 +57,11 @@ PATCH_FIELDS = ['is_staff', 'is_superuser', 'email']
 @api_view(['PATCH', 'DELETE'])
 @permission_classes((permissions.IsAdminUser, ))
 def user_patch_delete(request, pk):
+    print(type(request.data))
     try:
         user = User.objects.get(id=pk)
     except User.DoesNotExist:
         return Response(status=status.HTTP_404_NOT_FOUND)
-
     if request.method == 'PATCH':
         for field in PATCH_FIELDS:
             setattr(
@@ -77,3 +77,27 @@ def user_patch_delete(request, pk):
         # user.is_active = False
         # user.save()
     return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+EMAIL = {'email'}
+TOKEN_PASSWORD = {'token', 'password'}
+TOKEN = {'token'}
+
+
+@api_view(['PUT'])
+def password(request):
+    if request.data.keys() == EMAIL:
+        pass # TODO: send email
+    elif request.data.keys() == TOKEN:
+        pass
+    elif request.data.keys() == TOKEN_PASSWORD:
+        pass
+    else:
+        return Response(
+            data={
+                'error': 'the body should be one of ' + ' '.join(map(
+                    str,
+                    (EMAIL, TOKEN, TOKEN_PASSWORD) 
+                    ))
+            },
+            status=status.HTTP_400_BAD_REQUEST)
