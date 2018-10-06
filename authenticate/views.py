@@ -3,6 +3,7 @@ from django.contrib.auth import get_user_model
 from rest_framework import generics
 from rest_framework import permissions
 from rest_framework.views import APIView
+from rest_framework.decorators import api_view, permission_classes
 from rest_framework.authtoken.views import ObtainAuthToken
 from rest_framework.authtoken.models import Token
 from rest_framework.response import Response
@@ -49,3 +50,30 @@ class UserViews(APIView):
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+PATCH_FIELDS = ['is_staff', 'is_superuser', 'email']
+
+@api_view(['PATCH', 'DELETE'])
+@permission_classes((permissions.IsAdminUser, ))
+def user_patch_delete(request, pk):
+    try:
+        user = User.objects.get(id=pk)
+    except User.DoesNotExist:
+        return Response(status=status.HTTP_404_NOT_FOUND)
+
+    if request.method == 'PATCH':
+        for field in PATCH_FIELDS:
+            setattr(
+                user,
+                field,
+                request.data.get(
+                    field,
+                    getattr(user, field)
+            ))
+        user.save()
+    else:
+        user.delete(id=pk)
+        # user.is_active = False
+        # user.save()
+    return Response(status=status.HTTP_204_NO_CONTENT)
