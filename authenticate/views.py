@@ -1,5 +1,5 @@
 from django.contrib.auth import get_user_model
-from django.core.mail import send_mail
+from django.core.mail import EmailMessage
 from django.utils.crypto import get_random_string
 
 from rest_framework import generics
@@ -98,13 +98,12 @@ def password(request):
             return Response({'error': 'bad email'}, status=status.HTTP_400_BAD_REQUEST)
         new_pass = get_random_string()
         user.set_password(new_pass)
-        send_mail(
+        user.save()
+        EmailMessage(
             'Reset passowrd',
             'Your new password is ' + new_pass + ' please change it',
-            'source_email@email.com',
-            [user.email],
-            fail_silently=False
-        )
+            to=[user.email]
+        ).send()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
     elif request.data.keys() == TOKEN_PASSWORD:

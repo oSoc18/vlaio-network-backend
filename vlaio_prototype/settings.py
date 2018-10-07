@@ -144,3 +144,10 @@ MEDIA_URL = '/data-imports/'
 MEDIA_ROOT = os.path.join(BASE_DIR, "data-imports")
 
 CORS_ORIGIN_ALLOW_ALL = True
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_USE_TLS = True
+EMAIL_HOST = 'smtp.domain.com'
+EMAIL_PORT = 587
+DEFAULT_FROM_EMAIL = EMAIL_HOST_USER = 'no-reply@domain'
+EMAIL_HOST_PASSWORD = 'password' # Will be set on env var
