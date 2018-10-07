@@ -1,9 +1,12 @@
 from django.contrib.auth import get_user_model
+from django.core.mail import send_mail
+from django.utils.crypto import get_random_string
 
 from rest_framework import generics
 from rest_framework import permissions
+from rest_framework.authentication import get_authorization_header
 from rest_framework.views import APIView
-from rest_framework.decorators import api_view, permission_classes
+from rest_framework.decorators import api_view, permission_classes, authentication_classes
 from rest_framework.authtoken.views import ObtainAuthToken
 from rest_framework.authtoken.models import Token
 from rest_framework.response import Response
@@ -81,23 +84,55 @@ def user_patch_delete(request, pk):
 
 EMAIL = {'email'}
 TOKEN_PASSWORD = {'token', 'password'}
-TOKEN = {'token'}
+PASSWORD = {'password'}
 
 
 @api_view(['PUT'])
+@authentication_classes(tuple())
+@permission_classes(tuple())
 def password(request):
     if request.data.keys() == EMAIL:
-        pass # TODO: send email
-    elif request.data.keys() == TOKEN:
-        pass
+        try:
+            user = User.objects.get(email=request.data.get('email'))
+        except User.DoesNotExist:
+            return Response({'error': 'bad email'}, status=status.HTTP_400_BAD_REQUEST)
+        new_pass = get_random_string()
+        user.set_password(new_pass)
+        send_mail(
+            'Reset passowrd',
+            'Your new password is ' + new_pass + ' please change it',
+            'source_email@email.com',
+            [user.email],
+            fail_silently=False
+        )
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
     elif request.data.keys() == TOKEN_PASSWORD:
-        pass
+        print("11")
+        token_key = request.data.get('token')
+
+    elif request.data.keys() == PASSWORD:
+        print("22")
+        auth = get_authorization_header(request).split()
+        if len(auth) != 2:
+            return Response({'error': 'bad authorization header'}, status=status.HTTP_400_BAD_REQUEST)
+        token_key = auth[1].decode()
+
+
+
     else:
         return Response(
             data={
                 'error': 'the body should be one of ' + ' '.join(map(
                     str,
-                    (EMAIL, TOKEN, TOKEN_PASSWORD) 
+                    (EMAIL, PASSWORD, TOKEN_PASSWORD) 
                     ))
             },
             status=status.HTTP_400_BAD_REQUEST)
+
+    user = User.objects.filter(auth_token__key=token_key).first()
+    if user is None:
+        return Response({'error': 'bad token'}, status=status.HTTP_400_BAD_REQUEST)
+    user.set_password(request.data.get('password'))
+    user.save()
+    return Response(status=status.HTTP_204_NO_CONTENT)
