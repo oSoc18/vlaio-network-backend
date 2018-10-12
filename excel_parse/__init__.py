@@ -34,7 +34,18 @@ class Config:
         )
     
     def check(self, df):
-        return [f(df) for f in self.checkers]
+        """
+        return a tuple of (errors, warnings)
+        """
+        res = filter(lambda x: x, [f(df) for f in self.checkers])
+        warnings = []
+        errors = []
+        for txt, is_warning in res:
+            if is_warning:
+                warnings.append(txt)
+            else:
+                errors.append(txt)
+        return errors, warnings
 
     def insert_from_excel(self, file_path):
         df = self.get_data_from_excel_file(file_path)
@@ -46,7 +57,6 @@ class Config:
             encoding='sys.getfilesystemencoding()',
             dtype=self.xl_types
         )
-        print(df.columns)
         present = set(df.columns)
         missing = self.xl_cols - present
         if missing:
@@ -117,6 +127,7 @@ INTERACTION_CONFIG = Config(
         checkers.check_new_parnter,
         checkers.check_new_types,
         checkers.check_empty_col("Source"),
-        checkers.check_new_vat
+        checkers.check_new_vat,
+        checkers.check_tva
     ]
 )

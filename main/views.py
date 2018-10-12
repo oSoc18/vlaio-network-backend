@@ -1,3 +1,4 @@
+import os.path
 from django.shortcuts import render
 from rest_framework.generics import ListAPIView
 from rest_framework.views import APIView
@@ -131,18 +132,30 @@ class OverlapTimeframeListView(ListAPIView):
 
 
 class DataFileView(APIView):
+    """
+    Upload excel file
 
+    POST:
+    if there is errors the file is not conserved
+    if it contains only warning or no warning it is not deleted
+    object: {errors: string[], warnings: string[]}
+    """
     parser_classes = (MultiPartParser, FormParser)
 
     def post(self, request, *args, **kwargs):
-
+        
         file_serializer = DataFileSerializer(data=request.data)
         if file_serializer.is_valid():
-            file_serializer.save()
+            filedata = file_serializer.save()
             # COMPANY_CONFIG.insert_from_excel(settings.MEDIA_ROOT+"/belfirst1.xlsx")
-            INTERACTION_CONFIG.insert_from_excel(
-                settings.MEDIA_ROOT+"/VLAIO_advice.xlsx")
-            return Response(file_serializer.data, status=status.HTTP_201_CREATED)
+            data = INTERACTION_CONFIG.get_data_from_excel_file(
+                os.path.join(settings.MEDIA_ROOT, filedata.file.name)
+            )
+            errors, warnings = INTERACTION_CONFIG.check(data)
+            if errors:
+                filedata.delete()
+                os.remove(os.path.join(settings.MEDIA_ROOT, filedata.file.name))
+            return Response({'errors': errors, 'warnings': warnings}, status=status.HTTP_201_CREATED)
         else:
             return Response(file_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 

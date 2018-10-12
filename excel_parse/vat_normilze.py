@@ -8,7 +8,7 @@ EXAMPLES = [
 ]
 
 REGEX = re.compile(
-    r'(BTW)?(?P<country_code>[A-Za-z]{2})?0?(?P<real_data>\d{9})'
+    r'^(BTW)?(?P<country_code>[A-Za-z]{2})?0?(?P<real_data>\d{9})$'
 )
 
 OUTPUT = '{country_code}{real_data}'.format

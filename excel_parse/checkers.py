@@ -8,16 +8,19 @@ from main.models import Company, Interaction, Partner
 from .vat_normilze import is_vat
 
 def check_new_parnter(df):
-    partners = Partner.objects.exclude(name__in=df["Source"].unique())
-    if len(partners):
-        return f"{len(partners)} partners will be added" + " ".join(map(lambda p: p.name, partners))
+    partners_xl = df["Source"].unique()
+    partners_db = Partner.objects.values_list('name', flat=True).filter(name__in=partners_xl).distinct()
+    partners_new = set(partners_xl) - set(partners_db)
+    if len(partners_new):
+        return f"{len(partners_new)} partners will be added" + " ".join(partners_new)
 
 
 def check_new_types(df):
-    types_excl = df["Type"].unique()
-    types_db = Interaction.objects.exclude(type__in=types_excl).values_list('type', flat=True).distinct()
-    if len(types_db):
-        return f"{len(types_db)} types will be added to the database " + " ".join(types_db), True
+    types_xl = df["Type"].unique()
+    types_db = Interaction.objects.values_list('type', flat=True).exclude(type__in=types_xl).distinct()
+    types_new = set(types_xl) - set(types_db)
+    if len(types_new):
+        return f"{len(types_new)} types will be added to the database " + " ".join(types_new), True
 
 
 def check_empty_col(col_name):
@@ -45,6 +48,5 @@ def check_empty_type(df):
 
 def check_tva(df):
     res = df.index[df["VAT"].apply(lambda x: not is_vat(x))] + 1
-    print(df)
     if len(res):
-        return f"{len(res)} rows contains bad VAT: {list(res[:3])}", False
+        return f"{len(res)} rows contains bad VAT among which: {list(res[:3])}", False

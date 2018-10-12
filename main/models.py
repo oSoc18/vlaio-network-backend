@@ -27,3 +27,4 @@ class Interaction(models.Model):
 class DataFile(models.Model):
   file = models.FileField(blank=False, null=False)
   timestamp = models.DateTimeField(auto_now_add=True)
+  applied = models.BooleanField(default=False)
