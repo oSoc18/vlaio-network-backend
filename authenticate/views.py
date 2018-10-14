@@ -12,10 +12,9 @@ from rest_framework.authtoken.models import Token
 from rest_framework.response import Response
 from rest_framework import status
 
+from .models import ProxyUser as User
 from .serializers import ProfileSerializer, RegisterSerializer, AfterLoginSerializer
 from .permissions import SelfPermission
-
-User = get_user_model()
 
 
 class Profile(generics.RetrieveUpdateAPIView):
@@ -52,12 +51,11 @@ class UserViews(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-PATCH_FIELDS = ['is_staff', 'is_superuser', 'email']
+PATCH_FIELDS = ['is_active', 'is_superuser', 'email']
 
 @api_view(['PATCH', 'DELETE'])
 @permission_classes((permissions.IsAdminUser, ))
 def user_patch_delete(request, pk):
-    print(type(request.data))
     try:
         user = User.objects.get(id=pk)
     except User.DoesNotExist:

@@ -1,16 +1,13 @@
-from django.contrib.auth import get_user_model
 from rest_framework import serializers
-
-User = get_user_model()
+from .models import ProxyUser as User
 
 
 class ProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = (
-            'username',
-            'password',
             'email',
+            'password',
             'first_name',
             'last_name',
             'is_superuser',
@@ -21,7 +18,7 @@ class ProfileSerializer(serializers.ModelSerializer):
         extra_kwargs = {
             'password': {'write_only': True},
             'id': {'read_only': True},
-            'username': {'read_only': True}
+            'email': {'read_only': True}
         }
     
 
@@ -31,15 +28,19 @@ class RegisterSerializer(serializers.ModelSerializer):
         fields = (
             # TODO change username as email
             'password',
-            'username',
+            'email',
             'last_name',
             'id',
+            'is_superuser',
+            'is_active',
+            'first_name'
         )
         extra_kwargs = {
             'password': {'write_only': True},
-            'id': {'read_only': True}
+            'id': {'read_only': True},
+            'email': {'required': True}
         }
-    
+
 
 class AfterLoginSerializer(serializers.ModelSerializer):
     token = serializers.CharField(source='auth_token.key')
@@ -47,7 +48,7 @@ class AfterLoginSerializer(serializers.ModelSerializer):
         model = User
         fields = (
             'token',
-            'username',
+            'email',
             'first_name',
             'last_name',
             'is_superuser',
