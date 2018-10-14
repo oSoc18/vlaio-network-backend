@@ -13,7 +13,7 @@ class ProfileSerializer(serializers.ModelSerializer):
             'email',
             'first_name',
             'last_name',
-            'is_staff',
+            'is_superuser',
             'is_active',
             'id'
             # ...
@@ -50,7 +50,7 @@ class AfterLoginSerializer(serializers.ModelSerializer):
             'username',
             'first_name',
             'last_name',
-            'is_staff',
+            'is_superuser',
             'is_active',
             'id'
         )
