@@ -12,7 +12,7 @@ from rest_framework.authtoken.models import Token
 from rest_framework.response import Response
 from rest_framework import status
 
-from .serializers import ProfileSerializer, RegisterSerializer
+from .serializers import ProfileSerializer, RegisterSerializer, AfterLoginSerializer
 from .permissions import SelfPermission
 
 User = get_user_model()
@@ -32,12 +32,9 @@ class LoginView(ObtainAuthToken):
                                            context={'request': request})
         serializer.is_valid(raise_exception=True)
         user = serializer.validated_data['user']
-        token, created = Token.objects.get_or_create(user=user)
-        return Response({
-            'token': token.key,
-            'last_name': user.last_name,
-            'first_name': user.first_name
-        })
+        Token.objects.get_or_create(user=user)
+        res = AfterLoginSerializer(user)
+        return Response(res.data)
 
 
 class UserViews(APIView):

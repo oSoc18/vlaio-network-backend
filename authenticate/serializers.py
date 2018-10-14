@@ -41,3 +41,16 @@ class RegisterSerializer(serializers.ModelSerializer):
         }
     
 
+class AfterLoginSerializer(serializers.ModelSerializer):
+    token = serializers.CharField(source='auth_token.key')
+    class Meta:
+        model = User
+        fields = (
+            'token',
+            'username',
+            'first_name',
+            'last_name',
+            'is_staff',
+            'is_active',
+            'id'
+        )
