@@ -10,8 +10,7 @@ class ProfileSerializer(serializers.ModelSerializer):
             'password',
             'first_name',
             'last_name',
-            'is_superuser',
-            'is_active',
+            'role',
             'id'
             # ...
         )
@@ -31,8 +30,7 @@ class RegisterSerializer(serializers.ModelSerializer):
             'email',
             'last_name',
             'id',
-            'is_superuser',
-            'is_active',
+            'role',
             'first_name'
         )
         extra_kwargs = {
@@ -51,7 +49,6 @@ class AfterLoginSerializer(serializers.ModelSerializer):
             'email',
             'first_name',
             'last_name',
-            'is_superuser',
-            'is_active',
+            'role',
             'id'
         )

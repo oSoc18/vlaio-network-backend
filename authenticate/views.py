@@ -51,7 +51,7 @@ class UserViews(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-PATCH_FIELDS = ['is_active', 'is_superuser', 'email']
+PATCH_FIELDS = ['role', 'email']
 
 @api_view(['PATCH', 'DELETE'])
 @permission_classes((permissions.IsAdminUser, ))
