@@ -26,3 +26,15 @@ The following endpoints have been created:
     - Print all interactions between companies and partners
 - api/interactions?name=*example*
     - Print all interactions between a company and a certain partner (by partner name)
+- api/interactions/types
+    - Print all interaction types (i.e. subsidie,begeleiding,financiering,..)
+- api/overlap
+    - Print the interaction overlap between partners (endpoint for upset plot)
+    - param: limit (limits the overlaps for beter performance) 
+- api/overlap/filter
+    - Endpoint for filtering the interaction overlaps (endpoint for upset plot)
+    - params: timeframe (between interactions in weeks), type (interaction type), limit
+- api/upload
+    - endpoint for uploading excel files (in progress)
+- api/view
+    - endpoint for sunburst chart 

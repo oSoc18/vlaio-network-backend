@@ -6,11 +6,15 @@ from django.db.models import Count
 from datetime import datetime, timedelta
 
 
-def calculateOverlap():
+def calculateOverlap(limit):
     overlaps = []
 
     partnerNames = []
-    partners = Partner.objects.all()
+    if limit is not None:
+        partners = Partner.objects.all()[:int(limit):1]
+    else:
+        partners = Partner.objects.all()
+
     for p in partners:
         partnerNames.append(p.name)
 
@@ -19,7 +23,6 @@ def calculateOverlap():
         overlapSingle = Interaction.objects.filter(partner__name=partner.name).values(
             "company__vat").annotate(amount=Count("company__vat"))
 
-        Interaction.objects.filter()
         amount = 0
         for singleI in overlapSingle:
             amount += 1
@@ -54,11 +57,16 @@ def calculateOverlap():
     return overlaps
 
 
-def calculateOverlap_filterType(type):
+def calculateOverlap_filterType(type,limit):
     overlaps = []
 
     partnerNames = []
-    partners = Partner.objects.all()
+    
+    if limit is not None:
+        partners = Partner.objects.all()[:int(limit):1]
+    else:
+        partners = Partner.objects.all()
+    
     for p in partners:
         partnerNames.append(p.name)
 
@@ -102,7 +110,7 @@ def calculateOverlap_filterType(type):
     return overlaps
 
 
-def calculateOverlap_timeframe(timeframe):
+def calculateOverlap_timeframe(timeframe,limit):
     overlaps = []
 
     interactions_between_timeframe = []
@@ -119,7 +127,12 @@ def calculateOverlap_timeframe(timeframe):
     print("All:",len(Interaction.objects.all()))
 
     partnerNames = []
-    partners = Partner.objects.all()
+    
+    if limit is not None:
+        partners = Partner.objects.all()[:int(limit):1]
+    else:
+        partners = Partner.objects.all()
+    
     for p in partners:
         partnerNames.append(p.name)
 
