@@ -1,3 +1,4 @@
+from django.utils.crypto import get_random_string
 from rest_framework import serializers
 from .models import ProxyUser as User
 
@@ -25,8 +26,6 @@ class RegisterSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = (
-            # TODO change username as email
-            'password',
             'email',
             'last_name',
             'id',
@@ -34,10 +33,13 @@ class RegisterSerializer(serializers.ModelSerializer):
             'first_name'
         )
         extra_kwargs = {
-            'password': {'write_only': True},
             'id': {'read_only': True},
             'email': {'required': True}
         }
+    
+    def create(self, validated_data):
+        validated_data['password'] = get_random_string()
+        return super().create(validated_data)
 
 
 class AfterLoginSerializer(serializers.ModelSerializer):
