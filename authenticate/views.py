@@ -12,10 +12,9 @@ from rest_framework.authtoken.models import Token
 from rest_framework.response import Response
 from rest_framework import status
 
-from .serializers import ProfileSerializer, RegisterSerializer
+from .models import ProxyUser as User
+from .serializers import ProfileSerializer, RegisterSerializer, AfterLoginSerializer
 from .permissions import SelfPermission
-
-User = get_user_model()
 
 
 class Profile(generics.RetrieveUpdateAPIView):
@@ -32,12 +31,9 @@ class LoginView(ObtainAuthToken):
                                            context={'request': request})
         serializer.is_valid(raise_exception=True)
         user = serializer.validated_data['user']
-        token, created = Token.objects.get_or_create(user=user)
-        return Response({
-            'token': token.key,
-            'last_name': user.last_name,
-            'first_name': user.first_name
-        })
+        Token.objects.get_or_create(user=user)
+        res = AfterLoginSerializer(user)
+        return Response(res.data)
 
 
 class UserViews(APIView):
@@ -55,12 +51,14 @@ class UserViews(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-PATCH_FIELDS = ['is_staff', 'is_superuser', 'email']
+PATCH_FIELDS = ['role', 'email']
 
 @api_view(['PATCH', 'DELETE'])
 @permission_classes((permissions.IsAdminUser, ))
 def user_patch_delete(request, pk):
-    print(type(request.data))
+    f"""
+    deleting a user or changing editing {",".join(PATCH_FIELDS)}
+    """
     try:
         user = User.objects.get(id=pk)
     except User.DoesNotExist:
@@ -91,6 +89,13 @@ PASSWORD = {'password'}
 @authentication_classes(tuple())
 @permission_classes(tuple())
 def password(request):
+    """
+    resetting password:
+    if {email} is given: send an email with new generated password
+
+    if {token, password} or only {password} but with authorization header:
+        change the password
+    """
     if request.data.keys() == EMAIL:
         try:
             user = User.objects.get(email=request.data.get('email'))
@@ -107,11 +112,9 @@ def password(request):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
     elif request.data.keys() == TOKEN_PASSWORD:
-        print("11")
         token_key = request.data.get('token')
 
     elif request.data.keys() == PASSWORD:
-        print("22")
         auth = get_authorization_header(request).split()
         if len(auth) != 2:
             return Response({'error': 'bad authorization header'}, status=status.HTTP_400_BAD_REQUEST)

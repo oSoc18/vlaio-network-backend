@@ -7,6 +7,8 @@ urlpatterns = [
 
     # admins only
     path('password/', password, name='password'),
+    # changing the user informations or delete it
     path('<int:pk>', user_patch_delete, name='user-edit'),
+    # POST for creating new users
     path('', UserViews.as_view(), name="user")
 ]
