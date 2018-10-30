@@ -56,6 +56,9 @@ PATCH_FIELDS = ['role', 'email']
 @api_view(['PATCH', 'DELETE'])
 @permission_classes((permissions.IsAdminUser, ))
 def user_patch_delete(request, pk):
+    f"""
+    deleting a user or changing editing {",".join(PATCH_FIELDS)}
+    """
     try:
         user = User.objects.get(id=pk)
     except User.DoesNotExist:
@@ -86,6 +89,13 @@ PASSWORD = {'password'}
 @authentication_classes(tuple())
 @permission_classes(tuple())
 def password(request):
+    """
+    resetting password:
+    if {email} is given: send an email with new generated password
+
+    if {token, password} or only {password} but with authorization header:
+        change the password
+    """
     if request.data.keys() == EMAIL:
         try:
             user = User.objects.get(email=request.data.get('email'))
@@ -102,11 +112,9 @@ def password(request):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
     elif request.data.keys() == TOKEN_PASSWORD:
-        print("11")
         token_key = request.data.get('token')
 
     elif request.data.keys() == PASSWORD:
-        print("22")
         auth = get_authorization_header(request).split()
         if len(auth) != 2:
             return Response({'error': 'bad authorization header'}, status=status.HTTP_400_BAD_REQUEST)
