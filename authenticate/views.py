@@ -74,7 +74,7 @@ def user_patch_delete(request, pk):
             ))
         user.save()
     else:
-        user.delete(id=pk)
+        user.delete()
         # user.is_active = False
         # user.save()
     return Response(status=status.HTTP_204_NO_CONTENT)
