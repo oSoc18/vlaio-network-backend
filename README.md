@@ -36,6 +36,8 @@ The following endpoints have been created:
     - params: timeframe (between interactions in weeks), type (interaction type), limit
 - api/upload/
     - endpoint for uploading excel files (in progress)
+    - the content-type header should be set to multipart/form-data
+    - the excel file is putted in the key `file`
     - return an array of warnings (string) and one of:
         - array of errors (string) if errors
         - an upload_id (int)
