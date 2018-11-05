@@ -1,5 +1,5 @@
 from django.urls import path
-from main.views import CompanyListView,InteractionListView,PartnerListView,OverlapListView, DataFileView, OverlapTimeframeListView, InteractionTypeListView, view
+from main.views import CompanyListView,InteractionListView,PartnerListView,OverlapListView, DataFileView, InteractionTypeListView, view
 
 urlpatterns = [
     # path('test/', Home.as_view()),
@@ -9,7 +9,6 @@ urlpatterns = [
     path('partners/',PartnerListView.as_view()),
     path('overlap/', OverlapListView.as_view()),
     path('upload/', DataFileView.as_view()),
-    path('overlap/filter/', OverlapTimeframeListView.as_view()),
     path('view/', view)
 ]
 

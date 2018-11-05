@@ -10,7 +10,7 @@ from .models import Company, Interaction, Partner, Overlap, DataFile
 from .serializers import CompanySerializer, InteractionSerializer, PartnerSerializer, OverlapSerializer, DataFileSerializer
 from excel_parse import COMPANY_CONFIG, INTERACTION_CONFIG
 from django.conf import settings
-from .overlap import calculateOverlap, calculateOverlap_filterType,calculateOverlap_timeframe
+from .overlap import caclOverlap
 
 """
 class Home(TemplateView):
@@ -115,23 +115,38 @@ class OverlapListView(ListAPIView):
     
     def get_queryset(self):
         limit = self.request.query_params.get('limit', None)
-        return calculateOverlap(limit)
+        interaction_types = self.request.query_params.get('type', None)
+        timeframe = self.request.query_params.get('timeframe', None)
+
+        if interaction_types is not None:
+            if timeframe is not None:
+                return caclOverlap(limit, interaction_types, timeframe)
+            else:
+                return caclOverlap(limit,interaction_types, None)
+        elif timeframe is not None:
+            if interaction_types is not None:
+                return caclOverlap(limit, interaction_types, timeframe)
+            else:
+                return caclOverlap(limit,None,timeframe)
+        else:
+            return caclOverlap(limit,None,None)
 
 
+"""
 class OverlapTimeframeListView(ListAPIView):
     serializer_class = OverlapSerializer
 
     def get_queryset(self):
         limit = self.request.query_params.get('limit', None)
-        interaction_type = self.request.query_params.get('type', None)
+        interaction_types = self.request.query_params.get('type', None)
         timeframe = self.request.query_params.get('timeframe', None)
 
-        if interaction_type is not None:
-            return calculateOverlap_filterType(interaction_type,limit)
+        if interaction_types is not None:
+            return calculateOverlap_filterType(interaction_types,limit)
         elif timeframe is not None:
             return calculateOverlap_timeframe(timeframe,limit)
         
-
+"""
 
 class DataFileView(APIView):
     """
