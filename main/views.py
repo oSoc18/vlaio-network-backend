@@ -187,6 +187,11 @@ class DataFileView(APIView):
 
 @api_view(['GET'])
 def apply_datafile(request, id):
+    """
+    url_params: id(int) id returned by the upload/ endpoint
+
+    code: 204 on succes, 404 if id does not exist, 401 if already applied
+    """
     filedata = get_object_or_404(DataFile, pk=id)
     if filedata.applied:
         return Response({'error': 'already applied'}, status=401)
