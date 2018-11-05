@@ -117,19 +117,12 @@ class OverlapListView(ListAPIView):
         limit = self.request.query_params.get('limit', None)
         interaction_types = self.request.query_params.get('type', None)
         timeframe = self.request.query_params.get('timeframe', None)
-
-        if interaction_types is not None:
-            if timeframe is not None:
-                return caclOverlap(limit, interaction_types, timeframe)
-            else:
-                return caclOverlap(limit,interaction_types, None)
-        elif timeframe is not None:
-            if interaction_types is not None:
-                return caclOverlap(limit, interaction_types, timeframe)
-            else:
-                return caclOverlap(limit,None,timeframe)
-        else:
-            return caclOverlap(limit,None,None)
+        
+        intervalBegin = self.request.query_params.get('intervalbegin', None)
+        intervalEnd = self.request.query_params.get('intervalend', None)
+        
+        interval = [intervalBegin, intervalEnd]
+        return caclOverlap(limit, interaction_types, timeframe, interval)
 
 
 """
