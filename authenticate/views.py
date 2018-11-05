@@ -51,7 +51,7 @@ class UserViews(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-PATCH_FIELDS = ['role', 'email']
+PATCH_FIELDS = ['role', 'email', 'first_name', 'last_name']
 
 @api_view(['PATCH', 'DELETE'])
 @permission_classes((permissions.IsAdminUser, ))
@@ -73,6 +73,7 @@ def user_patch_delete(request, pk):
                     getattr(user, field)
             ))
         user.save()
+        return Response(ProfileSerializer(user).data)
     else:
         user.delete()
         # user.is_active = False
