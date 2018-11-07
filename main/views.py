@@ -137,9 +137,6 @@ def view(request):
         }
     else:
         inter = Interaction.objects.all()
-        interactions_by_type = {
-            p.type: p for p in inter
-        }
         interactions_by_id = {
             p.id: p for p in inter
         }
