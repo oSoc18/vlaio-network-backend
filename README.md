@@ -37,4 +37,6 @@ The following endpoints have been created:
 - api/upload
     - endpoint for uploading excel files (in progress)
 - api/view
+    - params: max_depth(int)
+    - criteria: two possibles values are "partner" (default) and "interaction"
     - endpoint for sunburst chart 

@@ -47,15 +47,20 @@ class PartnerListView(ListAPIView):
     queryset = Partner.objects.all()
 
 ###############################################################################
-"""
+
 @api_view()
 def view(request):
-    # Parameters and filters: TODO: make this come from url params
-    MAX_DEPTH = 400
-    
-    # True if it is by interaction type
-    # False if it is by partner
-    PATH_INTERACTION_TYPE = False
+    """
+    params: max_depth(int)
+    criteria: two possibles values are "partner" (default) and "interaction"
+    """
+    MAX_DEPTH = int(request.query_params.get('max_depth', 4))
+
+    PATH_INTERACTION_TYPE = (
+        request.query_params.get('criteria', 'partner')
+        == 'interaction'
+    )
+    print(PATH_INTERACTION_TYPE, type(PATH_INTERACTION_TYPE))
 
     companies = Company.objects.all()
 
@@ -106,9 +111,9 @@ def view(request):
             current = found_dict
 
     return Response(dicts)
-    """
 
 
+"""
 @api_view()
 def view(request):
     # Parameters and filters: TODO: make this come from url params
@@ -184,6 +189,7 @@ def view(request):
     return Response(dicts)
 ###############################################################################
 
+"""
 
 
 class OverlapListView(ListAPIView):
