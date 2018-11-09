@@ -40,6 +40,8 @@ class Config:
         res = filter(lambda x: x, [f(df) for f in self.checkers])
         warnings = []
         errors = []
+        res = list(res)
+        print(res)
         for txt, is_warning in res:
             if is_warning:
                 warnings.append(txt)
@@ -127,6 +129,8 @@ INTERACTION_CONFIG = Config(
         checkers.check_new_parnter,
         checkers.check_new_types,
         checkers.check_empty_col("Source"),
+        checkers.check_empty_col("Date"),
+        checkers.check_empty_col("Type"),
         checkers.check_new_vat,
         checkers.check_tva
     ]

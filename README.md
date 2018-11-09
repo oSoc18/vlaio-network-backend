@@ -34,7 +34,15 @@ The following endpoints have been created:
 - api/overlap/filter
     - Endpoint for filtering the interaction overlaps (endpoint for upset plot)
     - params: timeframe (between interactions in weeks), type (interaction type), limit
-- api/upload
+- api/upload/
     - endpoint for uploading excel files (in progress)
+    - the content-type header should be set to multipart/form-data
+    - the excel file is putted in the key `file`
+    - return an array of warnings (string) and one of:
+        - array of errors (string) if errors
+        - an upload_id (int)
+    - call HELP http method for details
+- api/apply/<upload_id>
+    - apply the upload file
 - api/view
     - endpoint for sunburst chart 

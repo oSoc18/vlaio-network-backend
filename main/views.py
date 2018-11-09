@@ -1,5 +1,5 @@
 import os.path
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404
 from rest_framework.generics import ListAPIView
 from rest_framework.views import APIView
 from rest_framework.parsers import MultiPartParser, FormParser
@@ -9,6 +9,7 @@ from rest_framework import status
 from .models import Company, Interaction, Partner, Overlap, DataFile
 from .serializers import CompanySerializer, InteractionSerializer, PartnerSerializer, OverlapSerializer, DataFileSerializer
 from excel_parse import COMPANY_CONFIG, INTERACTION_CONFIG
+from excel_parse.checkers import get_new_vat
 from django.conf import settings
 from .overlap import caclOverlap
 
@@ -146,9 +147,11 @@ class DataFileView(APIView):
     Upload excel file
 
     POST:
-    if there is errors the file is not conserved
+    if there is errors the file is not conserved and the returned object is
+    {errors: string[], warnings: string[]}
+    
     if it contains only warning or no warning it is not deleted
-    object: {errors: string[], warnings: string[]}
+    and it return  an object:  {id: int, warnings: string[]}
     """
     parser_classes = (MultiPartParser, FormParser)
 
@@ -162,12 +165,41 @@ class DataFileView(APIView):
                 os.path.join(settings.MEDIA_ROOT, filedata.file.name)
             )
             errors, warnings = INTERACTION_CONFIG.check(data)
+            resp_data = {'warnings': warnings}
             if errors:
                 filedata.delete()
                 os.remove(os.path.join(settings.MEDIA_ROOT, filedata.file.name))
-            return Response({'errors': errors, 'warnings': warnings}, status=status.HTTP_201_CREATED)
+                resp_data['errors'] = errors
+            else:
+                resp_data['upload_id'] = filedata.id
+
+            return Response(resp_data, status=status.HTTP_201_CREATED)
         else:
             return Response(file_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(['GET'])
+def apply_datafile(request, id):
+    """
+    url_params: id(int) id returned by the upload/ endpoint
+
+    code: 204 on succes, 404 if id does not exist, 401 if already applied
+    """
+    filedata = get_object_or_404(DataFile, pk=id)
+    if filedata.applied:
+        return Response({'error': 'already applied'}, status=401)
+
+    data = INTERACTION_CONFIG.get_data_from_excel_file(
+        os.path.join(settings.MEDIA_ROOT, filedata.file.name)
+    )
+    vat_list = get_new_vat(data)
+    if vat_list:
+        Company.objects.bulk_create(map(lambda x: Company(vat=x, employees=0), vat_list))
+    INTERACTION_CONFIG.insert_models(data)
+    filedata.applied = True
+    filedata.save()
+    return Response(status=204)
+
 
 class InteractionTypeListView(APIView):
     def get(self, request, *args, **kwargs):
