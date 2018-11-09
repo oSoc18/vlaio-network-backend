@@ -51,12 +51,17 @@ class PartnerListView(ListAPIView):
 
 @api_view()
 def view(request):
-    # Parameters and filters: TODO: make this come from url params
-    MAX_DEPTH = 400
-    
-    # True if it is by interaction type
-    # False if it is by partner
-    PATH_INTERACTION_TYPE = False
+    """
+    params: max_depth(int)
+    criteria: two possibles values are "partner" (default) and "interaction"
+    """
+    MAX_DEPTH = int(request.query_params.get('max_depth', 4))
+
+    PATH_INTERACTION_TYPE = (
+        request.query_params.get('criteria', 'partner')
+        == 'interaction'
+    )
+    print(PATH_INTERACTION_TYPE, type(PATH_INTERACTION_TYPE))
 
     companies = Company.objects.all()
 
@@ -107,8 +112,85 @@ def view(request):
             current = found_dict
 
     return Response(dicts)
+
+
+"""
+@api_view()
+def view(request):
+    # Parameters and filters: TODO: make this come from url params
+    MAX_DEPTH = 400
+
+    # True if it is by interaction type
+    # False if it is by partner
+    PATH_INTERACTION_TYPE = partner
+
+    companies = Company.objects.all()
+
+    if PATH_INTERACTION_TYPE == partner:
+        partners = Partner.objects.all()
+        partners_by_name = {
+            p.name: p for p in partners
+        }
+        partners_by_id = {
+            p.id: p for p in partners
+        }
+    elif PATH_INTERACTION_TYPE == company:
+        companies_by_name = {
+            p.name: p for p in companies
+        }
+        companies_by_id = {
+            p.vat: p for p in companies
+        }
+    else:
+        inter = Interaction.objects.all()
+        interactions_by_id = {
+            p.id: p for p in inter
+        }
+    def get_name(record):
+        if PATH_INTERACTION_TYPE == company:
+            return companies_by_id[record.companies_id].name
+        elif PATH_INTERACTION_TYPE == partner:
+            return partners_by_id[record.partner_id].name
+        else:
+            return interactions_by_id[record.interactions_id].type
+
+    def is_corresponding(record, name):
+        if PATH_INTERACTION_TYPE == company:
+            return record.companies_id == companies_by_name[name].vat
+        elif PATH_INTERACTION_TYPE == partner:
+            return record.partner_id == partners_by_name[name].id
+        else:
+            return record.interactions_id == interations_by_type[type].id
+
+    dicts = {
+        "name": "Partners" if PATH_INTERACTION_TYPE==partner elif PATH_INTERACTION_TYPE==company "Companies" else  "Interactions types",
+        "children": []
+    }
+    **********************************************************************************************************************
+    for n in companies:
+        current = dicts
+        interactions = Interaction.objects.filter(company_id=n.vat).order_by('date')[:MAX_DEPTH]
+        for i, m in enumerate(interactions):
+            found_dict = None
+            for _d in current["children"]:
+                name = _d["name"]
+                if is_corresponding(m, name):
+                    found_dict = _d
+                    break
+            if not found_dict:
+                found_dict = {
+                    "name": get_name(m),
+                    "children": [],
+                    "size": 0
+                }
+                current["children"].append(found_dict)
+            found_dict["size"] += 1
+            current = found_dict
+
+    return Response(dicts)
 ###############################################################################
 
+"""
 
 
 class OverlapListView(ListAPIView):

@@ -45,4 +45,6 @@ The following endpoints have been created:
 - api/apply/<upload_id>
     - apply the upload file
 - api/view
+    - params: max_depth(int)
+    - criteria: two possibles values are "partner" (default) and "interaction"
     - endpoint for sunburst chart 
