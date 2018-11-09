@@ -56,12 +56,10 @@ def view(request):
     criteria: two possibles values are "partner" (default) and "interaction"
     """
     MAX_DEPTH = int(request.query_params.get('max_depth', 4))
-
     PATH_INTERACTION_TYPE = (
         request.query_params.get('criteria', 'partner')
         == 'interaction'
     )
-    print(PATH_INTERACTION_TYPE, type(PATH_INTERACTION_TYPE))
 
     companies = Company.objects.all()
 
@@ -110,6 +108,7 @@ def view(request):
                 current["children"].append(found_dict)
             found_dict["size"] += 1
             current = found_dict
+        current = dicts
 
     return Response(dicts)
 
