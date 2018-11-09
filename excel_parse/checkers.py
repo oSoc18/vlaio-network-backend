@@ -9,8 +9,10 @@ from .vat_normilze import is_vat
 
 def check_new_parnter(df):
     partners_xl = df["Source"].unique()
+    print(df)
     partners_db = Partner.objects.values_list('name', flat=True).filter(name__in=partners_xl).distinct()
     partners_new = set(partners_xl) - set(partners_db)
+    print(partners_new)
     if len(partners_new):
         return f"{len(partners_new)} partners will be added" + " ".join(partners_new), True
 
@@ -39,6 +41,7 @@ def check_new_vat(df):
 
 def get_new_vat(df):
     vat_excl = set(df["VAT"].unique())
+    print(vat_excl)
     vat_db = set(Company.objects.filter(vat__in=vat_excl).values_list('vat', flat=True))
     vat_news = list(vat_excl - vat_db)
     return vat_news

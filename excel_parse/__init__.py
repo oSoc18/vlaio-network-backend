@@ -14,12 +14,13 @@ from . import checkers
 
 
 class Config:
-    def __init__(self, xl_to_sql, model_class, xl_types=None, map_df_func=None, checkers=None):
+    def __init__(self, xl_to_sql, model_class, xl_types=None, map_df_func=None, checkers=None, map_df_read=None):
         self.xl_to_sql = xl_to_sql
         self.xl_types = xl_types
         self.xl_cols = set(xl_to_sql.keys())
         self.model_class = model_class
         self.map_df_func=map_df_func
+        self.map_df_read=map_df_read
         self.checkers = checkers or []
 
     def insert_models(self, df):
@@ -41,7 +42,6 @@ class Config:
         warnings = []
         errors = []
         res = list(res)
-        print(res)
         for txt, is_warning in res:
             if is_warning:
                 warnings.append(txt)
@@ -59,6 +59,8 @@ class Config:
             encoding='sys.getfilesystemencoding()',
             dtype=self.xl_types
         )
+        if self.map_df_read is not None:
+            df = self.map_df_read(df)
         present = set(df.columns)
         missing = self.xl_cols - present
         if missing:
@@ -103,11 +105,13 @@ def map_df_interactions(df: pd.DataFrame):
         for name in set(df['Source'])
     }
     df["Source"] = df["Source"].apply(lambda x: sources[x].id)
-    # TODO change the date
-    df['date'] = date.today()
     df["VAT"] = df["VAT"].apply(normalize)
     return df
 
+
+def map_df_interactions_read(df):
+    df["VAT"] = df["VAT"].apply(normalize)
+    return df
 
 
 INTERACTION_CONFIG = Config(
@@ -133,5 +137,6 @@ INTERACTION_CONFIG = Config(
         checkers.check_empty_col("Type"),
         checkers.check_new_vat,
         checkers.check_tva
-    ]
+    ],
+    map_df_read=map_df_interactions_read
 )
