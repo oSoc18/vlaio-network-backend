@@ -1,5 +1,5 @@
 import os.path
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404
 from rest_framework.generics import ListAPIView
 from rest_framework.views import APIView
 from rest_framework.parsers import MultiPartParser, FormParser
@@ -9,6 +9,7 @@ from rest_framework import status
 from .models import Company, Interaction, Partner, Overlap, DataFile
 from .serializers import CompanySerializer, InteractionSerializer, PartnerSerializer, OverlapSerializer, DataFileSerializer
 from excel_parse import COMPANY_CONFIG, INTERACTION_CONFIG
+from excel_parse.checkers import get_new_vat
 from django.conf import settings
 from .overlap import caclOverlap
 
@@ -47,15 +48,18 @@ class PartnerListView(ListAPIView):
     queryset = Partner.objects.all()
 
 ###############################################################################
-"""
+
 @api_view()
 def view(request):
-    # Parameters and filters: TODO: make this come from url params
-    MAX_DEPTH = 400
-    
-    # True if it is by interaction type
-    # False if it is by partner
-    PATH_INTERACTION_TYPE = False
+    """
+    params: max_depth(int)
+    criteria: two possibles values are "partner" (default) and "interaction"
+    """
+    MAX_DEPTH = int(request.query_params.get('max_depth', 4))
+    PATH_INTERACTION_TYPE = (
+        request.query_params.get('criteria', 'partner')
+        == 'interaction'
+    )
 
     companies = Company.objects.all()
 
@@ -73,7 +77,7 @@ def view(request):
             return record.type
         else:
             return partners_by_id[record.partner_id].name
-    
+
     def is_corresponding(record, name):
         if PATH_INTERACTION_TYPE:
             return record.type == name
@@ -85,30 +89,52 @@ def view(request):
         "name": "Interactions types" if PATH_INTERACTION_TYPE else "Partners",
         "children": []
     }
-    for n in companies:
-        current = dicts
+    if PATH_INTERACTION_TYPE:
         interactions = Interaction.objects.filter(company_id=n.vat).order_by('date')[:MAX_DEPTH]
-        for i, m in enumerate(interactions):
-            found_dict = None
-            for _d in current["children"]:
-                name = _d["name"]
-                if is_corresponding(m, name):
-                    found_dict = _d
-                    break
-            if not found_dict:
+        for n in interactions:
+            current = dicts
+            if n.company_id == PATH_INTERACTION_TYPE:
                 found_dict = {
-                    "name": get_name(m),
+                    "id": interactions.id,
+                    "partner_id ": interactions.partner_id,
+                    "date": interactions.date,
                     "children": [],
                     "size": 0
                 }
                 current["children"].append(found_dict)
-            found_dict["size"] += 1
+                found_dict["size"] += 1
+
+            else:
+                found_dict = None
             current = found_dict
+        current = dicts
 
-    return Response(dicts)
-    """
+        return Response(dicts)
+    else:
+        for n in companies:
+            current = dicts
+            interactions = Interaction.objects.filter(company_id=n.vat).order_by('date')[:MAX_DEPTH]
+            for i, m in enumerate(interactions):
+                found_dict = None
+                for _d in current["children"]:
+                    name = _d["name"]
+                    if is_corresponding(m, name):
+                        found_dict = _d
+                        break
+                if not found_dict:
+                    found_dict = {
+                        "name": get_name(m),
+                        "children": [],
+                        "size": 0
+                    }
+                    current["children"].append(found_dict)
+                found_dict["size"] += 1
+                current = found_dict
+            current = dicts
 
+        return Response(dicts)
 
+"""
 @api_view()
 def view(request):
     # Parameters and filters: TODO: make this come from url params
@@ -184,19 +210,20 @@ def view(request):
     return Response(dicts)
 ###############################################################################
 
+"""
 
 
 class OverlapListView(ListAPIView):
-    serializer_class = OverlapSerializer 
-    
+    serializer_class = OverlapSerializer
+
     def get_queryset(self):
         limit = self.request.query_params.get('limit', None)
         interaction_types = self.request.query_params.get('type', None)
         timeframe = self.request.query_params.get('timeframe', None)
-        
+
         intervalBegin = self.request.query_params.get('intervalbegin', None)
         intervalEnd = self.request.query_params.get('intervalend', None)
-        
+
         interval = [intervalBegin, intervalEnd]
         return caclOverlap(limit, interaction_types, timeframe, interval)
 
@@ -214,7 +241,7 @@ class OverlapTimeframeListView(ListAPIView):
             return calculateOverlap_filterType(interaction_types,limit)
         elif timeframe is not None:
             return calculateOverlap_timeframe(timeframe,limit)
-        
+
 """
 
 class DataFileView(APIView):
@@ -222,14 +249,16 @@ class DataFileView(APIView):
     Upload excel file
 
     POST:
-    if there is errors the file is not conserved
+    if there is errors the file is not conserved and the returned object is
+    {errors: string[], warnings: string[]}
+
     if it contains only warning or no warning it is not deleted
-    object: {errors: string[], warnings: string[]}
+    and it return  an object:  {id: int, warnings: string[]}
     """
     parser_classes = (MultiPartParser, FormParser)
 
     def post(self, request, *args, **kwargs):
-        
+
         file_serializer = DataFileSerializer(data=request.data)
         if file_serializer.is_valid():
             filedata = file_serializer.save()
@@ -238,12 +267,41 @@ class DataFileView(APIView):
                 os.path.join(settings.MEDIA_ROOT, filedata.file.name)
             )
             errors, warnings = INTERACTION_CONFIG.check(data)
+            resp_data = {'warnings': warnings}
             if errors:
                 filedata.delete()
                 os.remove(os.path.join(settings.MEDIA_ROOT, filedata.file.name))
-            return Response({'errors': errors, 'warnings': warnings}, status=status.HTTP_201_CREATED)
+                resp_data['errors'] = errors
+            else:
+                resp_data['upload_id'] = filedata.id
+
+            return Response(resp_data, status=status.HTTP_201_CREATED)
         else:
             return Response(file_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(['GET'])
+def apply_datafile(request, id):
+    """
+    url_params: id(int) id returned by the upload/ endpoint
+
+    code: 204 on succes, 404 if id does not exist, 401 if already applied
+    """
+    filedata = get_object_or_404(DataFile, pk=id)
+    if filedata.applied:
+        return Response({'error': 'already applied'}, status=401)
+
+    data = INTERACTION_CONFIG.get_data_from_excel_file(
+        os.path.join(settings.MEDIA_ROOT, filedata.file.name)
+    )
+    vat_list = get_new_vat(data)
+    if vat_list:
+        Company.objects.bulk_create(map(lambda x: Company(vat=x, employees=0), vat_list))
+    INTERACTION_CONFIG.insert_models(data)
+    filedata.applied = True
+    filedata.save()
+    return Response(status=204)
+
 
 class InteractionTypeListView(APIView):
     def get(self, request, *args, **kwargs):
