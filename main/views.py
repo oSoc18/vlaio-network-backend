@@ -200,28 +200,12 @@ class OverlapListView(ListAPIView):
         interaction_types = self.request.query_params.get('type', None)
         timeframe = self.request.query_params.get('timeframe', None)
         
-        intervalBegin = self.request.query_params.get('intervalbegin', None)
-        intervalEnd = self.request.query_params.get('intervalend', None)
+        interval_begin = self.request.query_params.get('begin', None)
+        interval_end = self.request.query_params.get('end', None)
         
-        interval = [intervalBegin, intervalEnd]
-        return caclOverlap(limit, interaction_types, timeframe, interval)
+        return caclOverlap(limit, interaction_types, timeframe, interval_begin, interval_end)
 
 
-"""
-class OverlapTimeframeListView(ListAPIView):
-    serializer_class = OverlapSerializer
-
-    def get_queryset(self):
-        limit = self.request.query_params.get('limit', None)
-        interaction_types = self.request.query_params.get('type', None)
-        timeframe = self.request.query_params.get('timeframe', None)
-
-        if interaction_types is not None:
-            return calculateOverlap_filterType(interaction_types,limit)
-        elif timeframe is not None:
-            return calculateOverlap_timeframe(timeframe,limit)
-        
-"""
 
 class DataFileView(APIView):
     """

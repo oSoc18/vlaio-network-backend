@@ -5,6 +5,7 @@ import time
 from itertools import combinations
 from django.db.models import Count
 from datetime import datetime, timedelta
+import dateutil.parser
 
 """
 limit = int
@@ -24,14 +25,16 @@ timeinterval = [int begin, int eind]
 
 SQL query changes based on filters that are provided. -> if statements
 """
-def caclOverlap(limit, types, timeframe, timeInterval):
+def caclOverlap(limit, types, timeframe, interval_begin, interval_end):
     overlaps = []
     partnerNames = []
     interaction_types = []
     interactions_between_timeframe = [] 
+    interactions_between_interval = []
 
     filterTypes = False
     filterTimeframe = False
+    filterInterval = False
 
     #1. filter checks
     if types is not None:
@@ -62,12 +65,30 @@ def caclOverlap(limit, types, timeframe, timeInterval):
     else:
         partners = Partner.objects.all()
 
+    if interval_begin is not None and interval_end:
+        filterInterval = True
+
+        # convert data van iso string naar correct data
+        dateBegin = dateutil.parser.parse(interval_begin).date()
+        dateEnd = dateutil.parser.parse(interval_end).date()
+
+        #loop door alle companies
+        for company in Company.objects.all():
+            # per company de interacties opslaan in companyInteractiosnIntervel
+            companyInteractionsInterval = company.interaction_set.all()
+            
+            # loop door interactions
+            for inter in companyInteractionsInterval:
+                # hier ook check if time interval enzo
+                if dateBegin <= inter.date <= dateEnd:
+                    #interactions_between_interval.append(inter.id)
+                    pass
+
+    print(interactions_between_interval)
+
     #2. fill list of partner names
     for p in partners:
         partnerNames.append(p.name)
-
-
-    
 
     #3. single overlaps
     for partner in partners:
@@ -76,7 +97,7 @@ def caclOverlap(limit, types, timeframe, timeInterval):
         kwargs = {
             "partner__name": partner.name,
             "id__in": interactions_between_timeframe,
-            "type__in": interaction_types
+            "type__in": interaction_types,
         }
 
         if not filterTimeframe:
@@ -97,7 +118,6 @@ def caclOverlap(limit, types, timeframe, timeInterval):
         overlap = Overlap(partners=par, amount=amount)
         overlaps.append(overlap)
     
-    
     for i, partner in enumerate(partnerNames):
         
         perm = combinations(partnerNames, i+2)
@@ -115,7 +135,6 @@ def caclOverlap(limit, types, timeframe, timeInterval):
             if not filterTypes:
                 del kwargs["type__in"]
 
-            print(kwargs)
 
             overlapedInteractions = Interaction.objects.filter(**kwargs).values("company__vat").annotate(amount=Count("company__vat"))
 
