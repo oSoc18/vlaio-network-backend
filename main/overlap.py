@@ -81,8 +81,8 @@ def caclOverlap(limit, types, timeframe, interval_begin, interval_end):
             for inter in companyInteractionsInterval:
                 # hier ook check if time interval enzo
                 if dateBegin <= inter.date <= dateEnd:
-                    #interactions_between_interval.append(inter.id)
-                    pass
+                    interactions_between_interval.append(inter.id)
+                    
 
     print(interactions_between_interval)
 
@@ -90,20 +90,37 @@ def caclOverlap(limit, types, timeframe, interval_begin, interval_end):
     for p in partners:
         partnerNames.append(p.name)
 
+    to_filter_in_id = []
+
+    # enkel interval
+    if filterInterval and not filterTimeframe :
+        to_filter_in_id = interactions_between_interval
+    
+
+    # enkel timeframe
+    if not filterInterval and filterTimeframe:
+        to_filter_in_id = interactions_between_timeframe
+    
+    #timeframe and interval
+    if filterInterval and filterTimeframe:
+        # TODO
+        pass
+    
+
     #3. single overlaps
     for partner in partners:
         #define filter arguments
 
         kwargs = {
             "partner__name": partner.name,
-            "id__in": interactions_between_timeframe,
+            "id__in": to_filter_in_id,
             "type__in": interaction_types,
         }
 
-        if not filterTimeframe:
-            del kwargs["id__in"]
         if not filterTypes:
             del kwargs["type__in"]
+        if not filterTimeframe and not filterInterval:
+            del kwargs["id__in"]
 
         overlapSingle = Interaction.objects.filter(**kwargs).values("company__vat").annotate(amount=Count("company__vat"))
     
@@ -126,18 +143,16 @@ def caclOverlap(limit, types, timeframe, interval_begin, interval_end):
             
             kwargs = {
                 "partner__name__in": per,
-                "id__in": interactions_between_timeframe,
+                "id__in":to_filter_in_id,
                 "type__in": interaction_types
             }
-
-            if not filterTimeframe:
-                del kwargs["id__in"]
+            
             if not filterTypes:
                 del kwargs["type__in"]
-
+            if not filterTimeframe and not filterInterval:
+                del kwargs["id__in"]
 
             overlapedInteractions = Interaction.objects.filter(**kwargs).values("company__vat").annotate(amount=Count("company__vat"))
-
 
             amount = 0
             for interaction in overlapedInteractions:
