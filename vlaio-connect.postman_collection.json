@@ -1,0 +1,1053 @@
+{
+	"info": {
+		"_postman_id": "f8f47c53-4078-4558-badf-4343afb8b418",
+		"name": "VLAIO",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Companies",
+			"item": [
+				{
+					"name": "Get companies",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "1dc2c801-fb46-42e4-a7e4-f7201de9626d",
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Response time is less than 3 seconds\", function () {",
+									"    pm.expect(pm.response.responseTime).to.be.below(3000);",
+									"});",
+									"",
+									"var response = pm.response.json();",
+									"pm.test(\"Response complies with JSON schema\", function () {",
+									"    var schema = {",
+									"        \"type\": \"array\",",
+									"        \"items\": {",
+									"            \"type\": \"object\",",
+									"            \"required\": [\"vat\", \"name\"],",
+									"            \"properties\": {",
+									"                \"vat\": \"string\",",
+									"                \"name\": \"string\"",
+									"            }",
+									"        }",
+									"    };",
+									"    ",
+									"    pm.expect(tv4.validate(response, schema)).to.be.true;",
+									"});",
+									"",
+									"pm.environment.set(\"EXISTING_COMPANY_ID\", response[0][\"vat\"]);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Token {{AUTH_TOKEN}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{API_URL}}/companies/",
+							"host": [
+								"{{API_URL}}"
+							],
+							"path": [
+								"companies",
+								""
+							]
+						},
+						"description": "Get a list of companies with basic information\n"
+					},
+					"response": []
+				},
+				{
+					"name": "Get company interactions",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "1dc2c801-fb46-42e4-a7e4-f7201de9626d",
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Response complies with JSON schema\", function () {",
+									"    var schema = {",
+									"        \"type\": \"object\",",
+									"        \"properties\": {",
+									"            \"vat\": \"string\",",
+									"            \"name\": \"string\",",
+									"            \"interactions\": {",
+									"                \"type\": \"array\",",
+									"                \"items\": {",
+									"                    \"type\": \"object\",",
+									"                    \"required\": [\"partner\", \"date\", \"type\"],",
+									"                    \"properties\": {",
+									"                        \"id\": \"integer\",",
+									"                        \"partner\": \"string\",",
+									"                        \"date\": \"string\", // should be an iso string",
+									"                        \"type\": \"string\",",
+									"                    }",
+									"                }",
+									"            }",
+									"        }",
+									"    };",
+									"",
+									"    var example = {",
+									"        name: \"company\",",
+									"        vat: \"string\",",
+									"        interactions: [",
+									"            {",
+									"                \"id\": 1,",
+									"                \"partner\": \"string\",",
+									"                \"date\": \"string\",",
+									"                \"type\": \"string\",",
+									"            },",
+									"            {",
+									"                \"id\": 2,",
+									"                \"partner\": \"string\",",
+									"                \"date\": \"string\",",
+									"                \"type\": \"string\",",
+									"            }",
+									"        ]",
+									"    };",
+									"",
+									"    pm.expect(tv4.validate(response, schema)).to.be.true;",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "201f2e9c-8a5a-4202-be6d-eef4628da542",
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Token {{AUTH_TOKEN}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{API_URL}}/companies/{{EXISTING_COMPANY_ID}}/interactions",
+							"host": [
+								"{{API_URL}}"
+							],
+							"path": [
+								"companies",
+								"{{EXISTING_COMPANY_ID}}",
+								"interactions"
+							]
+						},
+						"description": "Get the interaction timeline for a specific company\n"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Users",
+			"item": [
+				{
+					"name": "Get users",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "a3558232-358f-4a3e-90fe-3e2df6a54c28",
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Response time is less than 3 seconds\", function () {",
+									"    pm.expect(pm.response.responseTime).to.be.below(3000);",
+									"});",
+									"",
+									"var response = pm.response.json();",
+									"pm.test(\"Response complies with JSON schema\", function () {",
+									"    var schema = {",
+									"        \"type\": \"array\",",
+									"        \"items\": {",
+									"            \"type\": \"object\",",
+									"            \"required\": [\"email\", \"first_name\", \"last_name\", \"role\", \"id\"],",
+									"            \"properties\": {",
+									"                \"email\": \"string\",",
+									"                \"first_name\": \"string\",",
+									"                \"last_name\": \"string\",",
+									"                \"role\": \"string\",",
+									"                \"id\": \"integer\"",
+									"            }",
+									"        }",
+									"    };",
+									"    ",
+									"    pm.expect(tv4.validate(response, schema)).to.be.true;",
+									"});",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"type": "text",
+								"value": "Token {{AUTH_TOKEN}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{API_URL}}/user/",
+							"host": [
+								"{{API_URL}}"
+							],
+							"path": [
+								"user",
+								""
+							]
+						},
+						"description": "Get all users"
+					},
+					"response": []
+				},
+				{
+					"name": "Create user",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "a3558232-358f-4a3e-90fe-3e2df6a54c28",
+								"exec": [
+									"pm.test(\"Status code is 201\", function () {",
+									"    pm.response.to.have.status(201);",
+									"});",
+									"",
+									"pm.test(\"Response time is less than 3 seconds\", function () {",
+									"    pm.expect(pm.response.responseTime).to.be.below(3000);",
+									"});",
+									"",
+									"var response = pm.response.json();",
+									"pm.test(\"Response complies with JSON schema\", function () {",
+									"    var schema = {",
+									"        \"type\": \"array\",",
+									"        \"items\": {",
+									"            \"type\": \"object\",",
+									"            \"required\": [\"email\", \"first_name\", \"last_name\", \"role\", \"id\"],",
+									"            \"properties\": {",
+									"                \"email\": \"string\",",
+									"                \"first_name\": \"string\",",
+									"                \"last_name\": \"string\",",
+									"                \"role\": \"string\",",
+									"                \"id\": \"integer\"",
+									"            }",
+									"        }",
+									"    };",
+									"    ",
+									"    pm.expect(tv4.validate(response, schema)).to.be.true;",
+									"});",
+									"",
+									"pm.environment.set(\"EXISTING_USER_ID\", response.id);",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"type": "text",
+								"value": "Token {{AUTH_TOKEN}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"email\": \"{{$guid}}@gmail.com\",\n\t\"first_name\": \"John\",\n\t\"last_name\": \"{{$guid}}\"\n}"
+						},
+						"url": {
+							"raw": "{{API_URL}}/user/",
+							"host": [
+								"{{API_URL}}"
+							],
+							"path": [
+								"user",
+								""
+							]
+						},
+						"description": "Create a user\n\nA random password is emailed to user"
+					},
+					"response": []
+				},
+				{
+					"name": "Update user",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "a3558232-358f-4a3e-90fe-3e2df6a54c28",
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Response time is less than 3 seconds\", function () {",
+									"    pm.expect(pm.response.responseTime).to.be.below(3000);",
+									"});",
+									"",
+									"var response = pm.response.json();",
+									"",
+									"pm.test(\"User was updated\", function () {",
+									"    pm.expect(response.first_name).to.be(\"Jane\");",
+									"    pm.expect(response.role).to.be(\"admin\");",
+									"});",
+									"",
+									"pm.test(\"Response complies with JSON schema\", function () {",
+									"    var schema = {",
+									"        \"type\": \"object\",",
+									"        \"required\": [\"email\", \"first_name\", \"last_name\", \"role\", \"id\"],",
+									"        \"properties\": {",
+									"            \"email\": \"string\",",
+									"            \"first_name\": \"string\",",
+									"            \"last_name\": \"string\",",
+									"            \"role\": \"string\",",
+									"            \"id\": \"integer\"",
+									"        }",
+									"    };",
+									"    ",
+									"    pm.expect(tv4.validate(response, schema)).to.be.true;",
+									"});",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"type": "text",
+								"value": "Token {{AUTH_TOKEN}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"first_name\": \"Jane\",\n\t\"role\": \"admin\"\n}"
+						},
+						"url": {
+							"raw": "{{API_URL}}/user/{{EXISTING_USER_ID}}/",
+							"host": [
+								"{{API_URL}}"
+							],
+							"path": [
+								"user",
+								"{{EXISTING_USER_ID}}",
+								""
+							]
+						},
+						"description": "Updates user information and returns updated user\n\n"
+					},
+					"response": []
+				},
+				{
+					"name": "Delete user",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "a3558232-358f-4a3e-90fe-3e2df6a54c28",
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Response time is less than 3 seconds\", function () {",
+									"    pm.expect(pm.response.responseTime).to.be.below(3000);",
+									"});",
+									"",
+									"// make sure to invalidate auth token",
+									"",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"type": "text",
+								"value": "Token {{AUTH_TOKEN}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"first_name\": \"Jane\",\n\t\"role\": \"admin\"\n}"
+						},
+						"url": {
+							"raw": "{{API_URL}}/user/{{EXISTING_USER_ID}}/",
+							"host": [
+								"{{API_URL}}"
+							],
+							"path": [
+								"user",
+								"{{EXISTING_USER_ID}}",
+								""
+							],
+							"query": [
+								{
+									"key": "",
+									"value": "",
+									"disabled": true
+								}
+							]
+						},
+						"description": "Deletes user and invalidates their auth tokens\n"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Interactions",
+			"item": [
+				{
+					"name": "Get interaction types",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "4f9d5962-3275-4d4a-896d-95a84b454473",
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Response time is less than 3 seconds\", function () {",
+									"    pm.expect(pm.response.responseTime).to.be.below(3000);",
+									"});",
+									"",
+									"var response = pm.response.json();",
+									"pm.test(\"Response complies with JSON schema\", function () {",
+									"    var schema = {",
+									"        \"type\": \"array\",",
+									"        \"items\": {",
+									"            \"type\": \"string\"",
+									"        }",
+									"    };",
+									"    ",
+									"    pm.expect(tv4.validate(response, schema)).to.be.true;",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Token {{AUTH_TOKEN}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{API_URL}}/interactions/types/",
+							"host": [
+								"{{API_URL}}"
+							],
+							"path": [
+								"interactions",
+								"types",
+								""
+							]
+						},
+						"description": "Gets all interaction types and returns them as an array of strings"
+					},
+					"response": []
+				},
+				{
+					"name": "Get interaction types by partner",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Token {{AUTH_TOKEN}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{API_URL}}/interactions/?name=Voka",
+							"host": [
+								"{{API_URL}}"
+							],
+							"path": [
+								"interactions",
+								""
+							],
+							"query": [
+								{
+									"key": "name",
+									"value": "Voka"
+								}
+							]
+						},
+						"description": "Gets all interaction types for a specific partner and returns them as an array of strings"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Overlap",
+			"item": [
+				{
+					"name": "Get overlap",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "a3558232-358f-4a3e-90fe-3e2df6a54c28",
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Response time is less than 3 seconds\", function () {",
+									"    pm.expect(pm.response.responseTime).to.be.below(3000);",
+									"});",
+									"",
+									"var response = pm.response.json();",
+									"pm.test(\"Response complies with JSON schema\", function () {",
+									"    var schema = {",
+									"        \"type\": \"array\",",
+									"        \"items\": {",
+									"            \"type\": \"object\",",
+									"            \"required\": [\"partners\", \"amount\"],",
+									"            \"properties\": {",
+									"                \"partners\": {",
+									"                    \"type\": \"array\",",
+									"                    \"items\": {",
+									"                        \"type\": \"string\"",
+									"                    }",
+									"                },",
+									"                \"amount\": \"integer\"",
+									"            }",
+									"        }",
+									"    };",
+									"    ",
+									"    pm.expect(tv4.validate(response, schema)).to.be.true;",
+									"});",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"type": "text",
+								"value": "Token {{AUTH_TOKEN}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{API_URL}}/overlap/?limit=5",
+							"host": [
+								"{{API_URL}}"
+							],
+							"path": [
+								"overlap",
+								""
+							],
+							"query": [
+								{
+									"key": "limit",
+									"value": "5"
+								}
+							]
+						},
+						"description": "Gets all overlaps\n"
+					},
+					"response": []
+				},
+				{
+					"name": "Get overlap - with filters",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "a3558232-358f-4a3e-90fe-3e2df6a54c28",
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Response time is less than 3 seconds\", function () {",
+									"    pm.expect(pm.response.responseTime).to.be.below(3000);",
+									"});",
+									"",
+									"var response = pm.response.json();",
+									"pm.test(\"Response complies with JSON schema\", function () {",
+									"    var schema = {",
+									"        \"type\": \"array\",",
+									"        \"items\": {",
+									"            \"type\": \"object\",",
+									"            \"required\": [\"partners\", \"amount\"],",
+									"            \"properties\": {",
+									"                \"partners\": {",
+									"                    \"type\": \"array\",",
+									"                    \"items\": {",
+									"                        \"type\": \"string\"",
+									"                    }",
+									"                },",
+									"                \"amount\": \"integer\"",
+									"            }",
+									"        }",
+									"    };",
+									"    ",
+									"    pm.expect(tv4.validate(response, schema)).to.be.true;",
+									"});",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"type": "text",
+								"value": "Token {{AUTH_TOKEN}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{API_URL}}/overlap/?limit=5&types=subsidie,begeleiding&timeframe=2&start=2018-11-20T16:00:59.797Z&end=2018-11-20T16:00:59.797Z",
+							"host": [
+								"{{API_URL}}"
+							],
+							"path": [
+								"overlap",
+								""
+							],
+							"query": [
+								{
+									"key": "limit",
+									"value": "5",
+									"description": "Amount of partners that the overlap is calculated for"
+								},
+								{
+									"key": "types",
+									"value": "subsidie,begeleiding",
+									"description": "Comma separated list of strings that filters which types of interactions are returned"
+								},
+								{
+									"key": "timeframe",
+									"value": "2",
+									"description": "Number of weeks between interactions"
+								},
+								{
+									"key": "start",
+									"value": "2018-11-20T16:00:59.797Z",
+									"description": "Start date of interactions as an ISO string"
+								},
+								{
+									"key": "end",
+									"value": "2018-11-20T16:00:59.797Z",
+									"description": "End date of interactions as an ISO string"
+								}
+							]
+						},
+						"description": "Gets all overlap with filters\n"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Import",
+			"item": [
+				{
+					"name": "Create import instance",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "a768e225-b16d-46ef-9a90-88b2d7272811",
+								"exec": [
+									"pm.test(\"Status code is 201\", function () {",
+									"    pm.response.to.have.status(201);",
+									"});",
+									"",
+									"pm.test(\"Response time is less than 5 seconds\", function () {",
+									"    pm.expect(pm.response.responseTime).to.be.below(5000);",
+									"});",
+									"",
+									"var response = pm.response.json();",
+									"pm.test(\"Response complies with JSON schema\", function () {",
+									"    var schema = {",
+									"        \"type\": \"object\",",
+									"        \"required\": [\"upload_id\", \"upload_token\"],",
+									"        \"properties\": {",
+									"            \"upload_id\": \"integer\",",
+									"            \"upload_token\": \"string\",",
+									"            \"warnings\": {",
+									"                \"type\": \"array\",",
+									"                \"items\": {",
+									"                    \"type\": \"object\",",
+									"                    \"required\": [\"message\"],",
+									"                    \"properties\": {",
+									"                        \"message\": \"subject\",",
+									"                        \"items\": {",
+									"                            \"type\": \"array\",",
+									"                            \"items\": \"string\"",
+									"                        }",
+									"                    }",
+									"                }",
+									"            },",
+									"            \"errors\": {",
+									"                \"type\": \"array\",",
+									"                \"items\": {",
+									"                    \"type\": \"object\",",
+									"                    \"required\": [\"message\"],",
+									"                    \"properties\": {",
+									"                        \"message\": \"subject\",",
+									"                        \"subjects\": {",
+									"                            \"type\": \"array\",",
+									"                            \"items\": \"string\"",
+									"                        }",
+									"                    }",
+									"                }",
+									"            }",
+									"        }",
+									"    };",
+									"    ",
+									"    var example = {",
+									"        upload_id: 1,",
+									"        upload_token: `{{$guid}}`,",
+									"        warnings: [",
+									"            {",
+									"                \"message\": \"2 partners will be added\",",
+									"                \"items\": [\"Odisee\", \"Artevelde\"]",
+									"            }",
+									"        ],",
+									"        errors: []",
+									"    };",
+									"    ",
+									"    pm.expect(tv4.validate(response, schema)).to.be.true;",
+									"});",
+									"",
+									"pm.environment.set(\"UPLOAD_TOKEN\", response.upload_toke);",
+									"pm.environment.set(\"EXISTING_UPLOAD_ID\", response.upload_id);",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"value": "application/x-www-form-urlencoded",
+								"type": "text"
+							},
+							{
+								"key": "Authorization",
+								"value": "Token {{AUTH_TOKEN}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "file",
+									"type": "file",
+									"src": ""
+								}
+							]
+						},
+						"url": {
+							"raw": "{{API_URL}}/upload/",
+							"host": [
+								"{{API_URL}}"
+							],
+							"path": [
+								"upload",
+								""
+							]
+						},
+						"description": "Creates import and returns a token and possible warnings/errors"
+					},
+					"response": []
+				},
+				{
+					"name": "Apply import",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "a768e225-b16d-46ef-9a90-88b2d7272811",
+								"exec": [
+									"pm.test(\"Status code is 204\", function () {",
+									"    pm.response.to.have.status(204);",
+									"});",
+									"",
+									"pm.test(\"Response time is less than 3 seconds\", function () {",
+									"    pm.expect(pm.response.responseTime).to.be.below(3000);",
+									"});",
+									"",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"type": "text",
+								"value": "application/x-www-form-urlencoded"
+							},
+							{
+								"key": "Authorization",
+								"type": "text",
+								"value": "Token {{AUTH_TOKEN}}"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "file",
+									"type": "file",
+									"src": ""
+								},
+								{
+									"key": "token",
+									"value": "{{UPLOAD_TOKEN}}",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{API_URL}}/upload/{{EXISTING_UPLOAD_ID}}",
+							"host": [
+								"{{API_URL}}"
+							],
+							"path": [
+								"upload",
+								"{{EXISTING_UPLOAD_ID}}"
+							]
+						},
+						"description": "Apply a previously created import using its id and token\n"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "User login (get token)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "14da6171-0c5c-4d07-88ad-0270e7cfddb7",
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"Response time is less than 3 seconds\", function () {",
+							"    pm.expect(pm.response.responseTime).to.be.below(3000);",
+							"});",
+							"",
+							"var response = pm.response.json();",
+							"pm.test(\"Response complies with JSON schema\", function () {",
+							"    var schema = {",
+							"        \"type\": \"object\",",
+							"        \"required\": [\"id\", \"email\", \"first_name\", \"last_name\", \"token\", \"role\"],",
+							"        \"properties\": {",
+							"            \"email\": \"string\",",
+							"            \"first_name\": \"string\",",
+							"            \"last_name\": \"string\",",
+							"            \"role\": \"string\",",
+							"            \"token\": \"string\",",
+							"            \"id\": \"integer\"",
+							"        }",
+							"    };",
+							"    // currently fails because role is not sent back in response",
+							"    pm.expect(tv4.validate(response, schema)).to.be.true;",
+							"});",
+							"",
+							"pm.environment.set(\"AUTH_TOKEN\", response.token);",
+							"",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"username\": \"user@domain.com\",\n    \"password\":\t\"123456\"\n}\n"
+				},
+				"url": {
+					"raw": "{{API_URL}}/user/login/",
+					"host": [
+						"{{API_URL}}"
+					],
+					"path": [
+						"user",
+						"login",
+						""
+					]
+				},
+				"description": "Creates authentication token and returns token and user information."
+			},
+			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"id": "a5c931fa-0b49-474b-9f16-022553f90c1b",
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"id": "08946371-6acf-4ecf-8728-2c6856f58170",
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	]
+}
