@@ -24,7 +24,7 @@ PARTNERS = {
 
 INTERACTION_TYPES = [
     "begeleiding",
-    "bubsidie",
+    "subsidie",
     "financiering"
 ]
 
