@@ -1,13 +1,15 @@
 import os.path
 from django.shortcuts import render, get_object_or_404
-from rest_framework.generics import ListAPIView
+from rest_framework.generics import ListAPIView, RetrieveAPIView
 from rest_framework.views import APIView
 from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from rest_framework import status
 from .models import Company, Interaction, Partner, Overlap, DataFile
-from .serializers import CompanySerializer, InteractionSerializer, PartnerSerializer, OverlapSerializer, DataFileSerializer
+from .serializers import (
+    CompanySerializer, InteractionSerializer, PartnerSerializer,
+     OverlapSerializer, DataFileSerializer, CompanySerializerInteractions)
 from excel_parse import COMPANY_CONFIG, INTERACTION_CONFIG
 from excel_parse.checkers import get_new_vat
 from django.conf import settings
@@ -22,6 +24,10 @@ class Home(TemplateView):
         context['companies'] = Company.objects.all()
         return context
 """
+
+class CompanyView(RetrieveAPIView):
+    serializer_class = CompanySerializerInteractions
+    queryset = Company.objects.all()
 
 
 class CompanyListView(ListAPIView):
