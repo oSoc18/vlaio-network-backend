@@ -15,8 +15,7 @@ class InteractionOfCompaySerializer(ModelSerializer):
             'type'
         )
 
-
-class CompanySerializer(ModelSerializer):
+class CompanySerializerInteractions(ModelSerializer):
     interaction_set = InteractionOfCompaySerializer(many=True)
 
     class Meta:
@@ -25,6 +24,18 @@ class CompanySerializer(ModelSerializer):
             'vat',
             'name',
             'interaction_set',
+            'employees',
+            'profit',
+        )
+
+
+class CompanySerializer(ModelSerializer):
+
+    class Meta:
+        model = Company
+        fields = (
+            'vat',
+            'name',
             'employees',
             'profit',
         )
