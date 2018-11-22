@@ -280,17 +280,14 @@
 									"var response = pm.response.json();",
 									"pm.test(\"Response complies with JSON schema\", function () {",
 									"    var schema = {",
-									"        \"type\": \"array\",",
-									"        \"items\": {",
-									"            \"type\": \"object\",",
-									"            \"required\": [\"email\", \"first_name\", \"last_name\", \"role\", \"id\"],",
-									"            \"properties\": {",
-									"                \"email\": \"string\",",
-									"                \"first_name\": \"string\",",
-									"                \"last_name\": \"string\",",
-									"                \"role\": \"string\",",
-									"                \"id\": \"integer\"",
-									"            }",
+									"        \"type\": \"object\",",
+									"        \"required\": [\"email\", \"first_name\", \"last_name\", \"role\", \"id\"],",
+									"        \"properties\": {",
+									"            \"email\": \"string\",",
+									"            \"first_name\": \"string\",",
+									"            \"last_name\": \"string\",",
+									"            \"role\": \"string\",",
+									"            \"id\": \"integer\"",
 									"        }",
 									"    };",
 									"    ",
@@ -420,7 +417,7 @@
 								"id": "a3558232-358f-4a3e-90fe-3e2df6a54c28",
 								"exec": [
 									"pm.test(\"Status code is 200\", function () {",
-									"    pm.response.to.have.status(200);",
+									"    pm.response.to.have.status(204);",
 									"});",
 									"",
 									"pm.test(\"Response time is less than 3 seconds\", function () {",
@@ -453,14 +450,13 @@
 							"raw": "{\n\t\"first_name\": \"Jane\",\n\t\"role\": \"admin\"\n}"
 						},
 						"url": {
-							"raw": "{{API_URL}}/user/{{EXISTING_USER_ID}}/",
+							"raw": "{{API_URL}}/user/{{EXISTING_USER_ID}}",
 							"host": [
 								"{{API_URL}}"
 							],
 							"path": [
 								"user",
-								"{{EXISTING_USER_ID}}",
-								""
+								"{{EXISTING_USER_ID}}"
 							],
 							"query": [
 								{
