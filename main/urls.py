@@ -15,7 +15,7 @@ urlpatterns = [
     path('partners/',PartnerListView.as_view()),
     path('overlap/', OverlapListView.as_view()),
     path('upload/', DataFileView.as_view()),
-    path('apply/<int:id>', apply_datafile),
+    path('upload/<int:id>', apply_datafile),
     path('view/', view)
 ]
 

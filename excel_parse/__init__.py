@@ -111,6 +111,7 @@ def map_df_interactions(df: pd.DataFrame):
 
 def map_df_interactions_read(df):
     df["VAT"] = df["VAT"].apply(normalize)
+    df["Source"] = df["Source"].apply(str.upper)
     return df
 
 

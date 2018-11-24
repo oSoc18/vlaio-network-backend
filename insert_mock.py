@@ -15,10 +15,10 @@ print("Begin mock insertion")
 PARTNERS = {
     # NAME: MAX_INTERACTIONS
     'VLAIO': 750,
-    'KULeuven': 600,
-    'Unizo': 500,
+    'KULEUVEN': 600,
+    'UNIZO': 500,
     'NSZ': 400,
-    "Voka": 300,
+    "VOKA": 300,
     "VUB": 200
 }
 
