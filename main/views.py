@@ -266,7 +266,7 @@ class DataFileView(APIView):
             return Response(file_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-@api_view(['GET'])
+@api_view(['POST'])
 def apply_datafile(request, id):
     """
     url_params: id(int) id returned by the upload/ endpoint
