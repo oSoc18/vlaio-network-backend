@@ -28,6 +28,7 @@ SQL query changes based on filters that are provided. -> if statements
 def caclOverlap(limit, types, timeframe, interval_begin, interval_end):
     overlaps = []
     partnerNames = []
+    partners = []
     interaction_types = []
     interactions_between_timeframe = [] 
     interactions_between_interval = []

@@ -4,5 +4,5 @@ docker rm $(docker stop $(docker ps -a -q --filter ancestor=postgres --format="{
 docker-compose up -d
 docker-compose exec web python3 manage.py makemigrations
 docker-compose exec web python3 manage.py migrate
-docker-compose exec web python3 insert_mock.py
+# docker-compose exec web python3 insert_mock.py
 docker-machine ls

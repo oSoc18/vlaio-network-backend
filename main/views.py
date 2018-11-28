@@ -127,6 +127,11 @@ class OverlapListView(ListAPIView):
         return caclOverlap(limit, interaction_types, timeframe, interval_begin, interval_end)
 
 
+class GetUploadByUser(ListAPIView):
+    serializer_class = DataFileSerializer
+
+    def get_queryset(self):
+        return DataFile.objects.filter(userid=request)
 
 class DataFileView(APIView):
     """
@@ -143,10 +148,16 @@ class DataFileView(APIView):
 
     def post(self, request, *args, **kwargs):
         
-        file_serializer = DataFileSerializer(data=request.data)
+        retrieved = request.data
+        retrieved["userid"] = request.user.id
+
+        file_serializer = DataFileSerializer(data=retrieved)
+        # get id from token
+        
+        #set id in model
+
         if file_serializer.is_valid():
             filedata = file_serializer.save()
-            # COMPANY_CONFIG.insert_from_excel(settings.MEDIA_ROOT+"/belfirst1.xlsx")
             data = INTERACTION_CONFIG.get_data_from_excel_file(
                 os.path.join(settings.MEDIA_ROOT, filedata.file.name)
             )
