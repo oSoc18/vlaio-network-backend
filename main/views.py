@@ -150,8 +150,8 @@ class DataFileView(APIView):
         
         retrieved = request.data
         retrieved["userid"] = request.user.id
-
         file_serializer = DataFileSerializer(data=retrieved)
+        
         # get id from token
         
         #set id in model

@@ -102,10 +102,20 @@ def caclOverlap(limit, types, timeframe, interval_begin, interval_end):
     if not filterInterval and filterTimeframe:
         to_filter_in_id = interactions_between_timeframe
     
+
+
+
     #timeframe and interval
     if filterInterval and filterTimeframe:
         # TODO
-        pass
+        # loop over timeframe, if also in interval -> ok
+        # if the interaction is not in interval, this means the timeframe is between 5 weeks, 
+        # but the interaction is not between the 2 points in time
+
+        for interaction_timeframe_id in interactions_between_timeframe:
+            for interaction_type_id in interactions_between_interval:
+                if interaction_timeframe_id == interaction_type_id:
+                    to_filter_in_id.append(interaction_timeframe_id)
     
 
     #3. single overlaps
