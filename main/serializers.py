@@ -73,4 +73,4 @@ class PartnerSerializer(ModelSerializer):
 class DataFileSerializer(ModelSerializer):
   class Meta():
     model = DataFile
-    fields = ('file', 'timestamp')
+    fields = ('file', 'timestamp','userid')

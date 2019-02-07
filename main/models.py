@@ -1,5 +1,6 @@
 from django.contrib.postgres.fields import ArrayField
 from django.db import models
+from django.contrib.auth import get_user_model 
 
 class Company(models.Model):
     vat = models.CharField(primary_key=True, max_length=30)
@@ -28,3 +29,4 @@ class DataFile(models.Model):
   file = models.FileField(blank=False, null=False)
   timestamp = models.DateTimeField(auto_now_add=True)
   applied = models.BooleanField(default=False)
+  userid = models.ForeignKey(get_user_model(), on_delete=models.CASCADE, blank=True,null=True)
