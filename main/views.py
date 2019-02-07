@@ -286,6 +286,9 @@ def apply_datafile(request, id):
     INTERACTION_CONFIG.insert_models(data)
     filedata.applied = True
     filedata.save()
+    Company.objects.all().delete()
+    Partner.objects.all().delete()
+    Interaction.objects.all().delete()
     return Response(status=204)
 
 
