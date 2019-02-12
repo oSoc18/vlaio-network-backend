@@ -9,11 +9,6 @@ django.setup()
 from main.models import Company, Partner, Interaction, Overlap
 
 
-
-Partner.objects.all().delete()
-Company.objects.all().delete()
-
-
 COMPANIES_COUNT = 1000
 
 print("Begin mock insertion")
