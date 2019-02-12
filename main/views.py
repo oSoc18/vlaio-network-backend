@@ -192,10 +192,6 @@ def apply_datafile(request, id):
     filedata = get_object_or_404(DataFile, pk=id)
     if filedata.applied:
         return Response({'error': 'already applied'}, status=401)
-
-    Company.objects.all().delete()
-    Partner.objects.all().delete()
-    Interaction.objects.all().delete()
     
     data = INTERACTION_CONFIG.get_data_from_excel_file(
         os.path.join(settings.MEDIA_ROOT, filedata.file.name)
